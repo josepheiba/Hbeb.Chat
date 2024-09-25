@@ -4,28 +4,35 @@ module.exports.signin_post = (req, res) => {
   res.send("Sign In");
 };
 
-module.exports.signup_post = async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
-    const emailExists = await User.findOne({ email });
-    const usernameExists = await User.findOne({ username });
-    if (!password || password.length < 6) {
-      return res
-        .status(400)
-        .send("Password must be at least 6 characters long");
-    }
-    if (emailExists || usernameExists) {
-      return res.status(400).send("User already exists");
-    } else {
-      try {
-        const user = new User({ username, email, password });
-        user.save();
-        res.send({ email: user.email, username: user.username });
-      } catch (error) {
-        res.status(400).send;
+const errorHandling = (error) => {
+  const errors = { username: "", email: "", password: "" };
+  if (error.message.includes("User validation failed")) {
+    const errorKeys = Object.keys(error.errors);
+    errorKeys.forEach((key) => {
+      errors[key] = error.errors[key].message;
+    });
+    return errors;
+  }
+  if (error.message.includes("duplicate key error collection")) {
+    console.log(JSON.stringify(error, null, 2));
+    if (error.code === 11000) {
+      if (error.keyPattern.username) {
+        errors.username = "Username is already registered";
       }
+      if (error.keyPattern.email) {
+        errors.email = "Email is already registered";
+      }
+      return errors;
     }
+  }
+};
+
+module.exports.signup_post = async (req, res) => {
+  const { username, email, password } = req.body;
+  try {
+    const user = await User.create({ username, email, password });
+    res.status(201).send(user);
   } catch (error) {
-    res.status(500).send("Error");
+    res.status(400).send(errorHandling(error));
   }
 };
