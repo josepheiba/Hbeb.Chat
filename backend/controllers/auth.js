@@ -1,7 +1,7 @@
 const User = require("../models/user");
 
 module.exports.signin_post = (req, res) => {
-  res.send("Sign In");
+  const { email, password } = req.body;
 };
 
 module.exports.signup_post = async (req, res) => {
