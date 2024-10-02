@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 var validator = require("validator");
+const bycrypt = require("bcrypt");
 const signUpErrorHandling = require("../utils/authErrorHandling");
 const hashPassword = require("../utils/hashPassword");
 
@@ -22,14 +23,26 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.post("save", (error, doc, next) => {
+userSchema.post("save", function (error, doc, next) {
   signUpErrorHandling(error, next);
   next();
 });
 
-userSchema.pre("save", async (next) => {
+userSchema.pre("save", async function (next) {
   this.password = await hashPassword(this.password);
   next();
 });
+
+userSchema.statics.login = async function (email, password) {
+  const errors = { email: "", password: "" };
+  const user = await this.findOne({ email });
+  if (user) {
+    if (bycrypt.compare(password, user.password)) {
+      return user;
+    }
+    throw Error((errors.password = "Incorrect password"));
+  }
+  throw Error((errors.email = "Incorrect email"));
+};
 
 module.exports = mongoose.model("User", userSchema);
