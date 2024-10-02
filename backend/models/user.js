@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 var validator = require("validator");
 const signUpErrorHandling = require("../utils/authErrorHandling");
-const bcrypt = require("bcrypt");
+const hashPassword = require("../utils/hashPassword");
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -22,14 +22,13 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.post("save", function (error, doc, next) {
+userSchema.post("save", (error, doc, next) => {
   signUpErrorHandling(error, next);
   next();
 });
 
-userSchema.pre("save", async function (next) {
-  const salt = await bcrypt.genSalt();
-  this.password = await bcrypt.hash(this.password, salt);
+userSchema.pre("save", async (next) => {
+  this.password = await hashPassword(this.password);
   next();
 });
 
