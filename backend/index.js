@@ -18,8 +18,10 @@ app.use(cookieParser());
 
 // Routes
 const authRouter = require("./routes/auth");
+const userRouter = require("./routes/user");
 
 app.use("/auth", authRouter);
+app.use("/user", userRouter);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound);

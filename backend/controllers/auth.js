@@ -10,7 +10,7 @@ module.exports.signin_post = async (req, res) => {
     const token = createToken(user._id);
     // res.cookie("jwt", token, { MaxAge: maxAge * 1000, httpOnly: true });
     res.status(200).json({
-      user: user._id,
+      user_id: user._id,
       token: token,
     });
   } catch (error) {
@@ -19,13 +19,19 @@ module.exports.signin_post = async (req, res) => {
 };
 
 module.exports.signup_post = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { email, password, username, biography } = req.body;
   try {
-    const user = await User.create({ username, email, password });
+    const user = await User.create({
+      username: "" || username,
+      biography: "" || biography,
+      email,
+      password,
+    });
+    console.log(user);
     const token = createToken(user._id);
     // res.cookie("jwt", token, { MaxAge: maxAge * 1000, httpOnly: true });
     res.status(201).json({
-      user: user._id,
+      user_id: user._id,
       token: token,
     });
   } catch (error) {

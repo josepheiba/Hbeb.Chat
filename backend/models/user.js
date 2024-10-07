@@ -7,8 +7,9 @@ const hashPassword = require("../utils/hashPassword");
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: [true, "Username is required"],
-    unique: true,
+  },
+  biography: {
+    type: String,
   },
   email: {
     type: String,
