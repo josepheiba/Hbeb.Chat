@@ -19,9 +19,11 @@ app.use(cookieParser());
 // Routes
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
+const roomRouter = require("./routes/room");
 
 app.use("/auth", authRouter);
 app.use("/user", userRouter);
+app.use("/room", roomRouter);
 
 app.use(async (req, res, next) => {
   next(createError.NotFound);

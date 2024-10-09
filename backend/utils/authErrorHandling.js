@@ -1,6 +1,5 @@
 const signUpErrorHandling = (error, next) => {
   const errors = { email: "", password: "" };
-  console.log(error);
   if (error.name && error.name === "ValidationError") {
     const errorKeys = Object.keys(error.errors);
     errorKeys.forEach((key) => {

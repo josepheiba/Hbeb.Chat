@@ -4,12 +4,16 @@ const jwt = require("jsonwebtoken");
 module.exports.update_user_post = async (req, res) => {
   const { email, username, biography } = req.body;
   const { user_id } = res.locals;
-  const updatedUser = await User.findByIdAndUpdate(user_id, {
-    email,
-    username,
-    biography,
-  });
-  res.status(200).json(updatedUser);
+  try {
+    const updatedUser = await User.findByIdAndUpdate(user_id, {
+      email,
+      username,
+      biography,
+    });
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 };
 
 module.exports.delete_user_post = async (req, res) => {

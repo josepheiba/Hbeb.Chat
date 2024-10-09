@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 var validator = require("validator");
-const bycrypt = require("bcrypt");
 const signUpErrorHandling = require("../utils/authErrorHandling");
 const hashPassword = require("../utils/hashPassword");
 
@@ -22,6 +21,12 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password is required"],
     minlength: [6, "Password must be at least 6 characters long"],
   },
+  rooms: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Room",
+    },
+  ],
 });
 
 userSchema.post("save", function (error, doc, next) {
