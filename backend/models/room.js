@@ -14,7 +14,6 @@ const roomSchema = new mongoose.Schema({
 // roomSchema.index({ users: 1 }, { unique: true });
 
 roomSchema.pre("save", function (next) {
-  // this.users.sort();
   next();
 });
 

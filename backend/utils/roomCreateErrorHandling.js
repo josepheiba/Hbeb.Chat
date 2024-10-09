@@ -1,11 +1,7 @@
 const roomCreateErrorHandling = (error, next) => {
   const errors = { users: "" };
-  if (
-    error.name &&
-    error.name === "ValidationError" &&
-    error.errors["users.1"]
-  ) {
-    errors.users = error.errors["users.1"].message;
+  if (error.name && error.name === "ValidationError") {
+    errors.users = error.message;
     next(errors);
   } else if (error) {
     console.log(JSON.stringify(error, null, 2));
