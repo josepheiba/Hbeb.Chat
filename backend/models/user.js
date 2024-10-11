@@ -43,7 +43,8 @@ userSchema.statics.login = async function (email, password) {
   const errors = { email: "", password: "" };
   const user = await this.findOne({ email });
   if (user) {
-    if (bycrypt.compare(password, user.password)) {
+    const auth = await bcrypt.compare(password, user.password);
+    if (auth) {
       return user;
     }
     throw Error((errors.password = "Incorrect password"));
