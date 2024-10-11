@@ -1,70 +1,61 @@
-import React, { useEffect, useState } from "react";
-import { Stack, useRouter, useSegments } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { Provider } from "react-redux";
+import React, { useEffect } from "react";
+import { Stack, useRouter } from "expo-router";
+import { Provider, useSelector, useDispatch } from "react-redux";
 import { store } from "../redux/store";
+import { checkAuthStatus } from "../redux/slices/authSlice";
 import CustomSplashScreen from "../components/CustomSplashScreen";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-SplashScreen.preventAutoHideAsync();
 
 function RootLayoutNav() {
-  const [appIsReady, setAppIsReady] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
   const router = useRouter();
-  const segments = useSegments();
 
   useEffect(() => {
-    async function prepare() {
-      try {
-        await checkLoginStatus();
-      } catch (e) {
-        console.warn("Error during app preparation:", e);
-      } finally {
-        setAppIsReady(true);
-      }
-    }
-    prepare();
-  }, []);
-
-  const checkLoginStatus = async () => {
-    try {
-      const authToken = await AsyncStorage.getItem("authToken");
-      setIsAuthenticated(authToken !== null);
-    } catch (error) {
-      console.error("Error checking login status:", error);
-      setIsAuthenticated(false);
-    }
-  };
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
 
   useEffect(() => {
-    if (appIsReady) {
-      SplashScreen.hideAsync();
-      const inAuthGroup = segments[0] === "(auth)";
-      const inTabsGroup = segments[0] === "(tabs)";
-
-      if (isAuthenticated && !inTabsGroup) {
+    if (!loading) {
+      if (isAuthenticated) {
         router.replace("/(tabs)/messages");
-      } else if (!isAuthenticated && !inAuthGroup) {
+      } else {
         router.replace("/");
       }
     }
-  }, [appIsReady, isAuthenticated, segments]);
+  }, [loading, isAuthenticated, router]);
 
-  if (!appIsReady) {
+  if (loading) {
     return <CustomSplashScreen />;
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {isAuthenticated ? (
-        <Stack.Screen name="(tabs)" options={{ href: "/" }} />
-      ) : (
-        <>
-          <Stack.Screen name="index" options={{ href: "/" }} />
-          <Stack.Screen name="(auth)" />
-        </>
-      )}
+    <Stack
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{
+          animation: "fade",
+        }}
+      />
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          animation: "slide_from_bottom",
+          presentation: "modal",
+          gestureDirection: "vertical",
+          gestureEnabled: true,
+          animationDuration: 200,
+        }}
+      />
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          animation: "fade_from_bottom",
+        }}
+      />
     </Stack>
   );
 }

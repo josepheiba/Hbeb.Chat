@@ -24,6 +24,7 @@ export default function Login() {
   const { loading, error } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     // Clear error when component mounts
@@ -35,12 +36,18 @@ export default function Login() {
     };
   }, [dispatch]);
 
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+
   const handleLogin = () => {
-    dispatch(loginUser({ email, password }))
-      .unwrap()
-      .then(() => {
-        router.replace("/(tabs)/messages");
-      });
+    console.log("Sending login cridentials to the server...");
+    dispatch(loginUser({ email, password }));
+    // .unwrap()
+    // .then(() => {
+    //   router.replace("/(tabs)/messages");
+    // })
+    // .catch((error) => {
+    //   console.error("Login failed:", error);
+    // });
   };
 
   const isFormValid = email && password;
@@ -74,10 +81,19 @@ export default function Login() {
             />
             <LabeledInput
               label="Password"
-              secureTextEntry={true}
+              secureTextEntry={!showPassword}
               nativeID="passwordInput"
               value={password}
               onChangeText={setPassword}
+              rightIcon={
+                <TouchableOpacity onPress={togglePasswordVisibility}>
+                  <Ionicons
+                    name={showPassword ? "eye-off" : "eye"}
+                    size={24}
+                    color="gray"
+                  />
+                </TouchableOpacity>
+              }
             />
             {error && <Text style={styles.errorText}>{error}</Text>}
           </View>

@@ -6,8 +6,10 @@ export default function AuthLayout() {
       screenOptions={{
         headerShown: false,
         gestureEnabled: true,
-        gestureDirection: "horizontal",
-        animation: "slide_from_right",
+        gestureDirection: "vertical",
+        animation: "slide_from_bottom",
+        presentation: "modal",
+        animationDuration: 200,
       }}
     />
   );

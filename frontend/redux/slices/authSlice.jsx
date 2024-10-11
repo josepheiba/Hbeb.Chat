@@ -8,46 +8,12 @@ const initialState = {
   error: null,
 };
 
-const mockUsers = [
-  { id: 1, email: "user@example.com", name: "John Doe" },
-  { id: 2, email: "admin@example.com", name: "Admin User" },
-];
-
 const storeAuthToken = async (token) => {
   try {
     await AsyncStorage.setItem("authToken", token);
   } catch (e) {
     console.error("Failed to save auth token");
   }
-};
-
-// Mock login function
-const mockLoginApi = (email, password) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const user = mockUsers.find((u) => u.email === email);
-      if (user && password === "password123") {
-        resolve({ user, token: "mock-auth-token" });
-      } else {
-        reject(new Error("Invalid email or password"));
-      }
-    }, 1000); // Simulate network delay
-  });
-};
-
-// Mock signup function
-const mockSignupApi = (userData) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (mockUsers.some((u) => u.email === userData.email)) {
-        reject(new Error("Email already in use"));
-      } else {
-        const newUser = { id: mockUsers.length + 1, ...userData };
-        mockUsers.push(newUser);
-        resolve({ user: newUser });
-      }
-    }, 1000); // Simulate network delay
-  });
 };
 
 async function validateTokenAndGetUser(token) {
@@ -57,45 +23,78 @@ async function validateTokenAndGetUser(token) {
   return { id: 1, name: "Auto Logged In User" };
 }
 
-// Action creators are generated for each case reducer function
-// Create an async thunk for login
+/**
+ * Redux Toolkit async thunk for user login.
+ * This thunk can handle both token-based and email/password-based authentication.
+ *
+ * @function loginUser
+ * @async
+ * @param {Object} credentials - The login credentials.
+ * @param {string} [credentials.email] - The user's email (required for email/password login).
+ * @param {string} [credentials.password] - The user's password (required for email/password login).
+ * @param {string} [credentials.token] - An existing authentication token (for token-based login).
+ * @param {Object} thunkAPI - The Redux Toolkit thunk API object.
+ * @param {Function} thunkAPI.rejectWithValue - A function to return a rejected action with a custom payload.
+ * @returns {Promise<Object>} A promise that resolves to an object containing user data and token.
+ * @throws Will throw an error if login fails.
+ */
 export const loginUser = createAsyncThunk(
   "auth/login",
   async ({ email, password, token }, { rejectWithValue }) => {
+    console.log("recieved email and password:", email, password);
     try {
+      console.log("Trying to login...");
       let user;
       let newToken;
+
       if (token) {
         // Logic to validate token and get user info
-        // This might involve a call to your backend
         console.log("Using saved token:", token);
         user = await validateTokenAndGetUser(token);
         newToken = token;
       } else {
-        const response = await mockLoginApi(email, password);
-        user = response.user;
-        newToken = response.token;
-        await AsyncStorage.setItem("authToken", response.token);
+        console.log("No token found, trying email/password login...");
+        const response = await fetch("http://192.168.1.42:3000/auth/signin", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        console.log("response ok" + response.ok);
       }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Login failed");
+      }
+
+      const data = await response.json(); // Assuming the API returns a JSON object with a user and token
+      user = data.user_id;
+      newToken = data.token;
+
+      await storeAuthToken(newToken);
+
       return { user, token: newToken };
-
-      // const response = await fetch("YOUR_API_ENDPOINT/login", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error("Login failed");
-      // }
-
-      // const data = await response.json();
-      // return data.user; // Assuming the API returns a user object
     } catch (error) {
       return rejectWithValue(error.message);
     }
+  },
+);
+
+export const checkAuthStatus = createAsyncThunk(
+  "auth/checkStatus",
+  async (_, { dispatch }) => {
+    const token = await AsyncStorage.getItem("authToken");
+    if (token) {
+      try {
+        return await dispatch(loginUser({ token })).unwrap();
+      } catch (error) {
+        console.error("Error checking auth status:", error);
+        await AsyncStorage.removeItem("authToken");
+      }
+    }
+    return null;
   },
 );
 
@@ -131,6 +130,9 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    setAuthenticated: (state, action) => {
+      state.isAuthenticated = action.payload;
+    },
     logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
@@ -160,7 +162,19 @@ export const authSlice = createSlice({
         // You might want to store the token in the state as well
         state.token = action.payload.token;
       })
-      // Add register reducers
+      .addCase(checkAuthStatus.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkAuthStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = !!action.payload;
+        state.user = action.payload;
+      })
+      .addCase(checkAuthStatus.rejected, (state) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+      })
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
       })
@@ -178,6 +192,6 @@ export const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { setAuthenticated, logout, clearError } = authSlice.actions;
 
 export default authSlice.reducer;

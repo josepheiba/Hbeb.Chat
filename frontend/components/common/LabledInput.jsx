@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 
-const LabeledInput = ({ label, error, ...inputProps }) => (
+const LabeledInput = ({ label, error, rightIcon, ...inputProps }) => (
   <View style={styles.container}>
     <View style={styles.labelContainer}>
       <Text
@@ -11,14 +11,20 @@ const LabeledInput = ({ label, error, ...inputProps }) => (
         {label}
       </Text>
     </View>
-    <TextInput
-      style={[
-        styles.input,
-        error ? { borderColor: "red" } : { borderColor: "#ccc" },
-      ]}
-      accessibilityLabelledBy={`${inputProps.nativeID}Label`}
-      {...inputProps}
-    />
+    <View style={styles.inputContainer}>
+      <TextInput
+        style={[
+          styles.input,
+          error ? { borderColor: "red" } : { borderColor: "#ccc" },
+        ]}
+        accessibilityLabelledBy={`${inputProps.nativeID}Label`}
+        autoCapitalize="none"
+        cursorColor={"#24786D"}
+        {...inputProps}
+      />
+      {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
+    </View>
+
     <View style={styles.errorContainer}>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
@@ -43,12 +49,23 @@ const styles = StyleSheet.create({
   labelError: {
     color: "red",
   },
-  input: {
-    borderWidth: 0,
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
-    paddingHorizontal: 10,
+    borderColor: "#ccc",
+  },
+  input: {
+    flex: 1,
     paddingVertical: 5,
-    borderRadius: 5,
+    paddingRight: 30,
+  },
+  rightIconContainer: {
+    position: "absolute",
+    right: 0,
+    height: "100%",
+    justifyContent: "center",
+    paddingHorizontal: 10,
   },
   errorContainer: {
     flexDirection: "row",
