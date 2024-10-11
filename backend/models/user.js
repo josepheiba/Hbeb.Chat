@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 var validator = require("validator");
 const signUpErrorHandling = require("../utils/authErrorHandling");
 const hashPassword = require("../utils/hashPassword");
+const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -42,6 +43,7 @@ userSchema.pre("save", async function (next) {
 userSchema.statics.login = async function (email, password) {
   const errors = { email: "", password: "" };
   const user = await this.findOne({ email });
+  console.log(user);
   if (user) {
     const auth = await bcrypt.compare(password, user.password);
     if (auth) {

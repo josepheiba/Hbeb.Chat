@@ -14,7 +14,7 @@ app.use(morgan("dev"));
 // Parse JSON
 app.use(express.json());
 // Cooki parser
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // Routes
 const authRouter = require("./routes/auth");
