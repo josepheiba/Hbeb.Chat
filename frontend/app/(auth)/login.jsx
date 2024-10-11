@@ -40,14 +40,15 @@ export default function Login() {
 
   const handleLogin = () => {
     console.log("Sending login cridentials to the server...");
-    dispatch(loginUser({ email, password }));
-    // .unwrap()
-    // .then(() => {
-    //   router.replace("/(tabs)/messages");
-    // })
-    // .catch((error) => {
-    //   console.error("Login failed:", error);
-    // });
+    dispatch(loginUser({ email, password }))
+      .unwrap()
+      .then((result) => {
+        console.log("Login successful");
+        // Navigate or perform other actions here
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+      });
   };
 
   const isFormValid = email && password;

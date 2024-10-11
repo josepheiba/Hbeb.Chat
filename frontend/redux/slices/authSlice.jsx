@@ -46,6 +46,7 @@ export const loginUser = createAsyncThunk(
       console.log("Trying to login...");
       let user;
       let newToken;
+      let response = null;
 
       if (token) {
         // Logic to validate token and get user info
@@ -54,29 +55,31 @@ export const loginUser = createAsyncThunk(
         newToken = token;
       } else {
         console.log("No token found, trying email/password login...");
-        const response = await fetch("http://192.168.1.42:3000/auth/signin", {
+        response = await fetch("http://192.168.1.42:3000/auth/signin", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ email, password }),
         });
-        console.log("response ok" + response.ok);
+        console.log("response status:", response.status);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Login failed");
+        }
+
+        const data = await response.json(); // Assuming the API returns a JSON object with a user and token
+        console.log("Login response data:", data);
+        user = data.user_id;
+        newToken = data.token;
+
+        await storeAuthToken(newToken);
       }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
-      }
-
-      const data = await response.json(); // Assuming the API returns a JSON object with a user and token
-      user = data.user_id;
-      newToken = data.token;
-
-      await storeAuthToken(newToken);
 
       return { user, token: newToken };
     } catch (error) {
+      console.error("Login error:", error);
       return rejectWithValue(error.message);
     }
   },

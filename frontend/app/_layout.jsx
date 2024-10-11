@@ -16,13 +16,14 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (!loading) {
+      console.log("isAuthenticated", isAuthenticated);
       if (isAuthenticated) {
         router.replace("/(tabs)/messages");
       } else {
         router.replace("/");
       }
     }
-  }, [loading, isAuthenticated, router]);
+  }, [isAuthenticated, router]);
 
   if (loading) {
     return <CustomSplashScreen />;
