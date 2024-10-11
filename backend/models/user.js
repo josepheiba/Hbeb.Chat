@@ -28,6 +28,12 @@ const userSchema = new mongoose.Schema({
       ref: "Room",
     },
   ],
+  contact: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 
 userSchema.post("save", function (error, doc, next) {
