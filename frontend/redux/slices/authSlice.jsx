@@ -60,7 +60,13 @@ const authSlice = createSlice({
         state.loading = false;
         if (action.payload) {
           state.isAuthenticated = true;
-          state.user = action.payload;
+          state.user = {
+            id: action.payload.user_id,
+            // Add other user properties if available
+          };
+        } else {
+          state.isAuthenticated = false;
+          state.user = null;
         }
       })
       .addCase(checkAuthStatus.rejected, (state) => {

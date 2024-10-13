@@ -49,7 +49,6 @@ export default function Login() {
       .unwrap()
       .then((result) => {
         console.log("Login successful");
-        router.replace("/(tabs)/messages");
       })
       .catch((error) => {
         console.log("error at handeLogin");

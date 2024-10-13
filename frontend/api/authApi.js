@@ -17,6 +17,8 @@ export const loginApi = async ({ email, password, token, user_id }) => {
     }
 
     console.log(`Attempting to connect to ${url}`);
+    console.log("Request body:", JSON.stringify(body));
+
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -27,22 +29,56 @@ export const loginApi = async ({ email, password, token, user_id }) => {
 
     console.log("Response status:", response.status);
 
-    if (!response.ok) {
-      console.log("Response not okay:", response);
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || `HTTP error! status: ${response.status}`,
-      );
+    // Always parse the response, regardless of status
+    const responseText = await response.text();
+    console.log("Raw response body:", responseText);
+
+    let responseBody;
+    try {
+      responseBody = JSON.parse(responseText);
+      console.log("Parsed response body:", responseBody);
+    } catch (e) {
+      console.log("Failed to parse response as JSON");
     }
 
-    const data = await response.json();
-    console.log("Login successful, received data:", data);
+    if (!response.ok) {
+      let errorMessage;
+      if (responseBody && typeof responseBody === "object") {
+        if (responseBody.error) {
+          errorMessage = responseBody.error;
+        } else if (responseBody.message) {
+          errorMessage = responseBody.message;
+        } else {
+          // If there are field-specific errors
+          const errors = [];
+          if (responseBody.email) errors.push(`Email: ${responseBody.email}`);
+          if (responseBody.password)
+            errors.push(`Password: ${responseBody.password}`);
+          errorMessage =
+            errors.length > 0 ? errors.join(", ") : "Unknown error";
+        }
+      } else {
+        errorMessage = responseText || `HTTP error! status: ${response.status}`;
+      }
+      console.log("Error message:", errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    console.log("Login successful, received data:", responseBody);
 
     // Store the token
-    await AsyncStorage.setItem("authToken", data.token);
-    await AsyncStorage.setItem("user_id", data.user_id);
+    if (responseBody && responseBody.token) {
+      await AsyncStorage.setItem("authToken", responseBody.token);
+    }
 
-    return data;
+    // Store the user_id if it exists in the response
+    if (responseBody && responseBody.user_id) {
+      await AsyncStorage.setItem("user_id", responseBody.user_id.toString());
+    } else {
+      console.warn("user_id not found in the response");
+    }
+
+    return responseBody;
   } catch (error) {
     console.log("Error in loginApi:");
     console.error(error);

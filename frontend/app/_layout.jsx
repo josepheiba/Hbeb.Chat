@@ -12,7 +12,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function RootLayoutNav() {
   const [isLoading, setIsLoading] = useState(true);
-  const loading = useSelector(selectAuthLoading);
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -22,24 +21,26 @@ function RootLayoutNav() {
       try {
         await dispatch(checkAuthStatus()).unwrap();
       } catch (error) {
+        console.error("Error checking auth status:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     checkToken();
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
-    console.log("rendering...");
-    if (!isLoading) {
-      if (isAuthenticated) {
-        router.replace("/(tabs)/messages");
-      } else {
-        router.replace("/");
-      }
+    if (isLoading) return; // Early return if still loading
+
+    if (isAuthenticated) {
+      console.log("User is authenticated, navigating to messages");
+      router.replace("/(tabs)/messages");
+    } else {
+      console.log("User is not authenticated, navigating to home");
+      router.replace("/");
     }
-  }, [isAuthenticated]);
+  }, [isLoading, isAuthenticated, router]);
 
   if (isLoading) {
     return <CustomSplashScreen />;
