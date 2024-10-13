@@ -87,13 +87,14 @@ module.exports.friend_request_post = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(friend_id)) {
       return res.status(400).json({ friend_id: "Invalid friend_id" });
     }
-    const updatedUser = await Used.findByIdAndUpdate(
+    const updatedUser = await User.findByIdAndUpdate(
       user_id,
       {
         $push: { friendRequests: friend_id },
       },
       { new: true },
     );
+    res.status(200).json(updatedUser);
   } catch (error) {
     res.status(400).json(error);
   }
