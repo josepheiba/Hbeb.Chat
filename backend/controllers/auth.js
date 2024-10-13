@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const maxAge = 3 * 24 * 60 * 60;
 
 module.exports.token_post = async (req, res) => {
-  res.status(200).json({ token: "Token is valid", userId: res.locals.user_id });
+  res
+    .status(200)
+    .json({ token: "Token is valid", user_id: res.locals.user_id });
 };
 
 module.exports.signin_post = async (req, res) => {
