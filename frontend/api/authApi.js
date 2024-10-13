@@ -3,15 +3,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // Replace this URL with your actual API endpoint
 const API_URL = "http://192.168.1.204:3000";
 
-export const loginApi = async ({ email, password, token }) => {
+export const loginApi = async ({ email, password, token, user_id }) => {
   try {
     let url = `${API_URL}/auth/signin`;
     let body = {};
 
-    if (token) {
+    if (token && user_id) {
       console.log("Verifying token with the backend...");
-      url = `${API_URL}/auth/verify-token`;
-      body = { token };
+      url = `${API_URL}/auth/token`;
+      body = { token, user_id };
     } else {
       body = { email, password };
     }
@@ -40,6 +40,7 @@ export const loginApi = async ({ email, password, token }) => {
 
     // Store the token
     await AsyncStorage.setItem("authToken", data.token);
+    await AsyncStorage.setItem("user_id", data.user_id);
 
     return data;
   } catch (error) {
