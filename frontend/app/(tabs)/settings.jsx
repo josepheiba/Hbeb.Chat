@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useDispatch } from "react-redux";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { setAuthenticated } from "../../redux/slices/authSlice";
+import { logout } from "../../redux/thunks/authThunks";
 
 const Settings = () => {
   const dispatch = useDispatch();
@@ -19,9 +19,8 @@ const Settings = () => {
         text: "OK",
         onPress: async () => {
           try {
-            await AsyncStorage.removeItem("authToken");
-            dispatch(setAuthenticated(false));
-            router.replace("/");
+            await dispatch(logout()).unwrap();
+            router.replace("/"); // Navigate to the login or home screen after logout
           } catch (error) {
             console.error("Error during logout:", error);
           }

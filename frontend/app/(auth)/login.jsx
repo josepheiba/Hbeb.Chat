@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
@@ -14,14 +13,20 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser, clearError } from "../../redux/slices/authSlice";
+import { loginUser } from "../../redux/thunks/authThunks";
+import { clearError } from "../../redux/slices/authSlice";
+import {
+  selectAuthLoading,
+  selectAuthError,
+} from "../../redux/selectors/authSelectors";
 import LabeledInput from "../../components/common/LabledInput";
 import CustomButton from "../../components/common/CustomButton";
 
 export default function Login() {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { loading, error } = useSelector((state) => state.auth);
+  const loading = useSelector(selectAuthLoading);
+  const error = useSelector(selectAuthError);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -39,15 +44,17 @@ export default function Login() {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   const handleLogin = () => {
-    console.log("Sending login cridentials to the server...");
+    console.log("Sending login credentials to the server...");
     dispatch(loginUser({ email, password }))
       .unwrap()
       .then((result) => {
         console.log("Login successful");
-        // Navigate or perform other actions here
+        router.replace("/(tabs)/messages");
       })
       .catch((error) => {
+        console.log("error at handeLogin");
         console.error("Login failed:", error);
+        // You might want to set an error state here to display to the user
       });
   };
 
@@ -108,7 +115,7 @@ export default function Login() {
               style={styles.RecoverAccountLink}
               onPress={() => router.push("/recover-account")}
             >
-              <Text style={styles.recoverAccountText}>Forgot Passowrd?</Text>
+              <Text style={styles.recoverAccountText}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

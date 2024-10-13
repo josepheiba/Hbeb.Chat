@@ -1,31 +1,47 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Stack, useRouter } from "expo-router";
 import { Provider, useSelector, useDispatch } from "react-redux";
-import { store } from "../redux/store";
-import { checkAuthStatus } from "../redux/slices/authSlice";
+import store from "../redux/store";
+import { loginUser, checkAuthStatus } from "../redux/thunks/authThunks";
+import {
+  selectIsAuthenticated,
+  selectAuthLoading,
+} from "../redux/selectors/authSelectors";
 import CustomSplashScreen from "../components/CustomSplashScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function RootLayoutNav() {
+  const [isLoading, setIsLoading] = useState(true);
+  const loading = useSelector(selectAuthLoading);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const dispatch = useDispatch();
-  const { isAuthenticated, loading } = useSelector((state) => state.auth);
   const router = useRouter();
 
   useEffect(() => {
-    dispatch(checkAuthStatus());
-  }, [dispatch]);
+    const checkToken = async () => {
+      try {
+        await dispatch(checkAuthStatus()).unwrap();
+      } catch (error) {
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkToken();
+  }, []);
 
   useEffect(() => {
-    if (!loading) {
-      console.log("isAuthenticated", isAuthenticated);
+    console.log("rendering...");
+    if (!isLoading) {
       if (isAuthenticated) {
         router.replace("/(tabs)/messages");
       } else {
         router.replace("/");
       }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated]);
 
-  if (loading) {
+  if (isLoading) {
     return <CustomSplashScreen />;
   }
 
