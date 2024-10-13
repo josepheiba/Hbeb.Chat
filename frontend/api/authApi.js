@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Replace this URL with your actual API endpoint
-const API_URL = "http://192.168.1.204:3000";
+const API_URL = "http://127.0.0.1:3000";
 
 export const loginApi = async ({ email, password, token, user_id }) => {
   try {
@@ -72,11 +72,11 @@ export const loginApi = async ({ email, password, token, user_id }) => {
     }
 
     // Store the user_id if it exists in the response
-    if (responseBody && responseBody.user_id) {
-      await AsyncStorage.setItem("user_id", responseBody.user_id.toString());
-    } else {
-      console.warn("user_id not found in the response");
-    }
+    // if (responseBody && responseBody.user_id) {
+    //   await AsyncStorage.setItem("user_id", responseBody.user_id.toString());
+    // } else {
+    //   console.warn("user_id not found in the response");
+    // }
 
     return responseBody;
   } catch (error) {
