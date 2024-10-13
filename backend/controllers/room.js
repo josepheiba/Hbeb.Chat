@@ -28,7 +28,7 @@ module.exports.create_room_post = async (req, res) => {
         },
       });
       if (fetchRoom) {
-        return res.status(201).json({
+        return res.status(200).json({
           room_id: fetchRoom._id,
           users: fetchRoom.users,
           owner: room.owner,
@@ -56,13 +56,13 @@ module.exports.create_room_post = async (req, res) => {
     );
 
     if (uniqueUsers.length > 2) {
-      res.status(200).json({
+      res.status(201).json({
         room_id: room._id,
         users: room.users,
         owner: room.owner,
       });
     } else {
-      res.status(200).json({
+      res.status(201).json({
         room_id: room._id,
         users: room.users,
       });

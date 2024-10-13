@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: [validator.isEmail, "Email must be valid"],
   },
+  phone: {
+    type: String,
+    validate: [validator.isMobilePhone, "Phone number must be valid"],
+  },
   password: {
     type: String,
     required: [true, "Password is required"],
@@ -28,7 +32,13 @@ const userSchema = new mongoose.Schema({
       ref: "Room",
     },
   ],
-  contacts: [
+  friends: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  friendRequests: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -37,6 +47,7 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.post("save", function (error, doc, next) {
+  console.log(error);
   signUpErrorHandling(error, next);
   next();
 });
@@ -49,15 +60,16 @@ userSchema.pre("save", async function (next) {
 userSchema.statics.login = async function (email, password) {
   const errors = { email: "", password: "" };
   const user = await this.findOne({ email });
-  console.log(user);
   if (user) {
     const auth = await bcrypt.compare(password, user.password);
     if (auth) {
       return user;
     }
-    throw Error((errors.password = "Incorrect password"));
+    errors.password = "Incorrect password";
+  } else {
+    errors.email = "Incorrect email";
   }
-  throw Error((errors.email = "Incorrect email"));
+  throw errors;
 };
 
 module.exports = mongoose.model("User", userSchema);

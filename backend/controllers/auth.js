@@ -19,12 +19,13 @@ module.exports.signin_post = async (req, res) => {
 };
 
 module.exports.signup_post = async (req, res) => {
-  const { email, password, username, biography } = req.body;
+  const { email, phone, password, username, biography } = req.body;
   try {
     const user = await User.create({
       username: "" || username,
       biography: "" || biography,
       email,
+      phone,
       password,
     });
     console.log(user);
