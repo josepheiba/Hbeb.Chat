@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
@@ -7,6 +7,11 @@ import { useRouter } from "expo-router";
 
 const App = () => {
   const router = useRouter();
+
+  useEffect(() => {
+    console.log("Rendering index page...");
+  }, []);
+
   return (
     // <SafeAreaView style={styles.container}>
     //   <StatusBar style="dark" />
