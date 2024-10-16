@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Replace this URL with your actual API endpoint
-const API_URL = "http://192.168.1.204:3000";
+const API_URL = "http://192.168.1.42:3000";
 
 export const loginApi = async ({ email, password, token, user_id }) => {
   try {
@@ -85,8 +85,6 @@ export const loginApi = async ({ email, password, token, user_id }) => {
 
     return responseBody;
   } catch (error) {
-    console.log("Error in loginApi:");
-    console.error(error);
     throw error;
   }
 };

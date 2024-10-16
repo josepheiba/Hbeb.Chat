@@ -9,7 +9,7 @@ export const loginUser = createAsyncThunk(
       const response = await loginApi(credentials);
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || "An unexpected error occurred");
+      return rejectWithValue(error.message);
     }
   },
 );

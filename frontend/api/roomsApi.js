@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const API_URL = "http://192.168.1.204:3000";
+const API_URL = "http://192.168.1.42:3000";
 
 export const getRoomsApi = async () => {
   try {

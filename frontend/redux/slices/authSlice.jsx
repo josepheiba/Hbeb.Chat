@@ -17,10 +17,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // logout: (state) => {
-    //   state.user = null;
-    //   state.isAuthenticated = false;
-    // },
     clearError: (state) => {
       state.error = null;
     },
@@ -90,4 +86,6 @@ const authSlice = createSlice({
 });
 
 export const { clearError } = authSlice.actions;
+export { logout }; // Export the logout thunk
+
 export default authSlice.reducer;

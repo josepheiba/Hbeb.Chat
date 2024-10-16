@@ -31,30 +31,38 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    // Clear error when component mounts
-    dispatch(clearError());
+  // useEffect(() => {
+  //   // Clear error when component mounts
+  //   dispatch(clearError());
 
-    // Clear error when component unmounts
-    return () => {
-      dispatch(clearError());
-    };
-  }, [dispatch]);
+  //   // Clear error when component unmounts
+  //   return () => {
+  //     dispatch(clearError());
+  //   };
+  // }, [dispatch]);
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-  const handleLogin = () => {
+  const handleEmailChange = (text) => {
+    setEmail(text);
+    if (error) dispatch(clearError());
+  };
+
+  const handlePasswordChange = (text) => {
+    setPassword(text);
+    if (error) dispatch(clearError());
+  };
+
+  const handleLogin = async () => {
     console.log("Sending login credentials to the server...");
-    dispatch(loginUser({ email, password }))
-      .unwrap()
-      .then((result) => {
-        console.log("Login successful");
-      })
-      .catch((error) => {
-        console.log("error at handeLogin");
-        console.error("Login failed:", error);
-        // You might want to set an error state here to display to the user
-      });
+    try {
+      await dispatch(loginUser({ email, password })).unwrap();
+      console.log("Login successful");
+      // Navigate to the main app screen or perform any other action on successful login
+    } catch (error) {
+      console.log("Login failed:", error);
+      // The error will be automatically set in the Redux state, so we don't need to do anything here
+    }
   };
 
   const isFormValid = email && password;
@@ -102,7 +110,11 @@ export default function Login() {
                 </TouchableOpacity>
               }
             />
-            {error && <Text style={styles.errorText}>{error}</Text>}
+            {error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
           </View>
           <View style={styles.bottomContainer}>
             <CustomButton
@@ -159,6 +171,12 @@ const styles = StyleSheet.create({
     marginBottom: 60,
     marginLeft: 40,
     marginRight: 40,
+  },
+  errorContainer: {
+    backgroundColor: "#ffebee",
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
   },
   errorText: {
     color: "red",
