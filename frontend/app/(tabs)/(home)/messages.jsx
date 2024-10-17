@@ -11,6 +11,7 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import ProtectedRoute from "../../../components/common/ProtectedRoute";
 
 // Dummy data for stories and conversations
 const stories = [
@@ -74,45 +75,47 @@ export default function Messages() {
   const reversedConversations = [...conversations].reverse();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar
-        barStyle={statusBarStyle}
-        backgroundColor={statusBarColor}
-        translucent={Platform.OS === "android"}
-      />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Home</Text>
-          <TouchableOpacity style={styles.profileAvatar}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/40" }}
-              style={styles.avatarImage}
-            />
-          </TouchableOpacity>
+    <ProtectedRoute>
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar
+          barStyle={statusBarStyle}
+          backgroundColor={statusBarColor}
+          translucent={Platform.OS === "android"}
+        />
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.searchButton}>
+              <Ionicons name="search" size={24} color="black" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Home</Text>
+            <TouchableOpacity style={styles.profileAvatar}>
+              <Image
+                source={{ uri: "https://via.placeholder.com/40" }}
+                style={styles.avatarImage}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <FlatList
+            horizontal
+            data={stories}
+            renderItem={({ item }) => <StoryItem story={item} />}
+            keyExtractor={(item) => item.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.storiesContainer}
+          />
+
+          <FlatList
+            inverted
+            data={reversedConversations}
+            renderItem={({ item }) => <ConversationItem conversation={item} />}
+            keyExtractor={(item) => item.id}
+            style={styles.conversationsWrapper}
+            contentContainerStyle={styles.conversationsContent}
+          />
         </View>
-
-        <FlatList
-          horizontal
-          data={stories}
-          renderItem={({ item }) => <StoryItem story={item} />}
-          keyExtractor={(item) => item.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.storiesContainer}
-        />
-
-        <FlatList
-          inverted
-          data={reversedConversations}
-          renderItem={({ item }) => <ConversationItem conversation={item} />}
-          keyExtractor={(item) => item.id}
-          style={styles.conversationsWrapper}
-          contentContainerStyle={styles.conversationsContent}
-        />
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </ProtectedRoute>
   );
 }
 

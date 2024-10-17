@@ -11,7 +11,7 @@ export const loginUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  },
+  }
 );
 
 export const checkAuthStatus = createAsyncThunk(
@@ -20,6 +20,7 @@ export const checkAuthStatus = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem("authToken");
       const user_id = await AsyncStorage.getItem("user_id");
+      console.log("Token and user_id", token, user_id);
       if (token && user_id) {
         // Validate the token with your backend
         const response = await loginApi({ token, user_id });
@@ -28,9 +29,10 @@ export const checkAuthStatus = createAsyncThunk(
       return null;
     } catch (error) {
       await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem("user_id");
       return rejectWithValue(error.message || "Authentication failed");
     }
-  },
+  }
 );
 
 export const logout = createAsyncThunk(
@@ -38,13 +40,14 @@ export const logout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem("user_id");
       console.log("Token removed");
       return true; // Indicate successful logout
     } catch (error) {
       console.error("Error during logout:", error);
       return rejectWithValue("Failed to logout");
     }
-  },
+  }
 );
 
 export const registerUser = createAsyncThunk(
@@ -57,5 +60,5 @@ export const registerUser = createAsyncThunk(
       console.log("error at registerUser thunk");
       return rejectWithValue(error.response.data);
     }
-  },
+  }
 );

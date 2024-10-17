@@ -43,25 +43,30 @@ export default function Login() {
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
-  const handleEmailChange = (text) => {
-    setEmail(text);
-    if (error) dispatch(clearError());
-  };
+  //   const handleEmailChange = (text) => {
+  //     setEmail(text);
+  //     if (error) dispatch(clearError());
+  //   };
 
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-    if (error) dispatch(clearError());
-  };
+  //   const handlePasswordChange = (text) => {
+  //     setPassword(text);
+  //     if (error) dispatch(clearError());
+  //   };
 
   const handleLogin = async () => {
-    console.log("Sending login credentials to the server...");
     try {
-      await dispatch(loginUser({ email, password })).unwrap();
-      console.log("Login successful");
-      // Navigate to the main app screen or perform any other action on successful login
+      const resultAction = await dispatch(loginUser({ email, password }));
+      if (loginUser.fulfilled.match(resultAction)) {
+        console.log("Login successful");
+        router.replace("/(tabs)/messages"); // Navigate to the main app screen on successful login
+      } else {
+        console.log(
+          "Login failed:",
+          resultAction.payload || resultAction.error.message
+        );
+      }
     } catch (error) {
       console.log("Login failed:", error);
-      // The error will be automatically set in the Redux state, so we don't need to do anything here
     }
   };
 
