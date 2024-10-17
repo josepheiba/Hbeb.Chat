@@ -32,6 +32,7 @@ module.exports.fetch_user_post = async (req, res) => {
   if (user) {
     try {
       const fetchedUser = await User.findById(user).select("-password");
+      console.log(fetchedUser);
       res.status(200).json(fetchedUser);
     } catch (error) {
       res.status(400).send(error);
