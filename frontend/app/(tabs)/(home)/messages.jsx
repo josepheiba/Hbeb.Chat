@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,11 +7,16 @@ import {
   Image,
   SafeAreaView,
   FlatList,
-  StatusBar,
   Platform,
+  Animated,
+  PanResponder,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AntDesign } from "@expo/vector-icons";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
+import { useRouter } from "expo-router";
 
 // Dummy data for stories and conversations
 const stories = [
@@ -50,42 +55,113 @@ const StoryItem = ({ story }) => (
   </TouchableOpacity>
 );
 
-const ConversationItem = ({ conversation }) => (
-  <TouchableOpacity style={styles.conversationItem}>
-    <Image
-      source={{ uri: "https://via.placeholder.com/50" }}
-      style={styles.conversationImage}
-    />
-    <View style={styles.conversationDetails}>
-      <Text style={styles.conversationName}>{conversation.name}</Text>
-      <Text style={styles.conversationLastMessage}>
-        {conversation.lastMessage}
-      </Text>
-    </View>
-    <Text style={styles.conversationTime}>{conversation.time}</Text>
-  </TouchableOpacity>
-);
+const ConversationItem = ({ conversation, onDelete, onPress }) => {
+  const pan = useRef(new Animated.ValueXY()).current;
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_, gestureState) =>
+      Math.abs(gestureState.dx) > 5,
+    onPanResponderMove: Animated.event([null, { dx: pan.x }], {
+      useNativeDriver: false,
+    }),
+    onPanResponderRelease: (_, gestureState) => {
+      if (gestureState.dx < -80) {
+        setIsDeleting(true);
+        Animated.timing(pan, {
+          toValue: { x: -80, y: 0 },
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      } else {
+        setIsDeleting(false);
+        Animated.spring(pan, {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: false,
+        }).start();
+      }
+    },
+  });
+
+  const handleDelete = () => {
+    Animated.timing(pan, {
+      toValue: { x: -1000, y: 0 },
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => onDelete(conversation.id));
+  };
+
+  const backgroundColor = isDeleting ? "#F1F6FA" : "white";
+
+  return (
+    <Animated.View
+      style={[
+        styles.conversationItem,
+        {
+          transform: [{ translateX: pan.x }],
+          backgroundColor,
+        },
+      ]}
+      {...panResponder.panHandlers}
+    >
+      <TouchableOpacity
+        style={styles.conversationContent}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <Image
+          source={{ uri: "https://via.placeholder.com/50" }}
+          style={styles.conversationImage}
+        />
+        <View style={styles.conversationDetails}>
+          <Text style={styles.conversationName}>{conversation.name}</Text>
+          <Text style={styles.conversationLastMessage}>
+            {conversation.lastMessage}
+          </Text>
+        </View>
+        <Text style={styles.conversationTime}>{conversation.time}</Text>
+      </TouchableOpacity>
+      {isDeleting && (
+        <TouchableOpacity
+          style={[styles.deleteButton, { backgroundColor }]}
+          onPress={handleDelete}
+        >
+          <View style={styles.deleteIconContainer}>
+            <AntDesign name="delete" size={20} color="white" />
+          </View>
+        </TouchableOpacity>
+      )}
+    </Animated.View>
+  );
+};
+
+const ios = Platform.OS === "ios";
 
 export default function Messages() {
-  const statusBarStyle =
-    Platform.OS === "ios" ? "dark-content" : "light-content";
-  const statusBarColor = Platform.OS === "ios" ? "transparent" : "#24786D";
+  const [conversationList, setConversationList] = useState(conversations);
+  const { top } = useSafeAreaInsets();
+  const router = useRouter();
 
-  // Reverse the conversations array
-  const reversedConversations = [...conversations].reverse();
+  const handleDelete = (id) => {
+    setConversationList(conversationList.filter((conv) => conv.id !== id));
+  };
+
+  const handleConversationPress = (conversation) => {
+    router.push({
+      pathname: "(tabs)/(home)/room/[id]",
+      params: { id: conversation.id, name: conversation.name },
+    });
+  };
 
   return (
     <ProtectedRoute>
       <SafeAreaView style={styles.safeArea}>
-        <StatusBar
-          barStyle={statusBarStyle}
-          backgroundColor={statusBarColor}
-          translucent={Platform.OS === "android"}
-        />
+        {/* <View style={[styles.mainView, { paddingTop: ios ? top : top + 5 }]}> */}
+        <StatusBar style="light" />
         <View style={styles.container}>
           <View style={styles.header}>
             <TouchableOpacity style={styles.searchButton}>
-              <Ionicons name="search" size={24} color="black" />
+              <Ionicons name="search-outline" size={35} color="white" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Home</Text>
             <TouchableOpacity style={styles.profileAvatar}>
@@ -96,25 +172,35 @@ export default function Messages() {
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            horizontal
-            data={stories}
-            renderItem={({ item }) => <StoryItem story={item} />}
-            keyExtractor={(item) => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.storiesContainer}
-          />
+          <View style={styles.storiesSection}>
+            <FlatList
+              horizontal
+              data={stories}
+              renderItem={({ item }) => <StoryItem story={item} />}
+              keyExtractor={(item) => item.id}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.storiesContainer}
+            />
+          </View>
 
-          <FlatList
-            inverted
-            data={reversedConversations}
-            renderItem={({ item }) => <ConversationItem conversation={item} />}
-            keyExtractor={(item) => item.id}
-            style={styles.conversationsWrapper}
-            contentContainerStyle={styles.conversationsContent}
-          />
+          <View style={styles.conversationsWrapper}>
+            <View style={styles.conversationsHeader} />
+            <FlatList
+              data={conversationList.slice().reverse()}
+              renderItem={({ item }) => (
+                <ConversationItem
+                  conversation={item}
+                  onDelete={handleDelete}
+                  onPress={() => handleConversationPress(item)}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.conversationsContent}
+            />
+          </View>
         </View>
       </SafeAreaView>
+      {/* </View> */}
     </ProtectedRoute>
   );
 }
@@ -122,23 +208,25 @@ export default function Messages() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    backgroundColor: "black",
+  },
+  container: {
+    flex: 1,
+    paddingTop: ios ? 0 : 30,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#e0e0e0",
   },
   searchButton: {
     padding: 5,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "regular",
+    color: "white",
   },
   profileAvatar: {
     width: 40,
@@ -152,15 +240,12 @@ const styles = StyleSheet.create({
   },
   storiesContainer: {
     paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    paddingVertical: 30,
   },
   storyItem: {
     alignItems: "center",
     marginRight: 15,
     width: 65,
-    backgroundColor: "#fff",
   },
   storyImage: {
     width: 60,
@@ -171,19 +256,47 @@ const styles = StyleSheet.create({
   storyName: {
     fontSize: 12,
     textAlign: "center",
+    color: "white",
   },
   conversationsWrapper: {
-    flex: 0,
+    flex: 1,
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    overflow: "hidden",
   },
-  conversationsContent: {
-    flexGrow: 1,
-    justifyContent: "flex-end",
+  conversationsHeader: {
+    padding: 8,
+    borderColor: "#e0e0e0",
+    borderBottomWidth: 4,
+    width: 35,
+    alignSelf: "center",
+    marginBottom: 20,
   },
   conversationItem: {
     flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  conversationContent: {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 15,
-    borderTopWidth: 1,
-    borderTopColor: "#e0e0e0",
+    flex: 1,
+  },
+  deleteButton: {
+    // backgroundColor: "red",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 80,
+    height: "100%",
+    position: "absolute",
+    right: -80,
+    top: 0,
+  },
+  deleteButtonText: {
+    color: "white",
+    fontWeight: "bold",
   },
   conversationImage: {
     width: 50,
@@ -206,5 +319,13 @@ const styles = StyleSheet.create({
   conversationTime: {
     fontSize: 12,
     color: "#999",
+  },
+  deleteIconContainer: {
+    width: 40,
+    height: 40,
+    backgroundColor: "#EA3736",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 25,
   },
 });
