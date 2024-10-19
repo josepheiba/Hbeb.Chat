@@ -2,6 +2,7 @@
 import React from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 
+console.log("Rendering main index.jsx");
 const SplashScreen = () => {
   return (
     <View style={styles.container}>
