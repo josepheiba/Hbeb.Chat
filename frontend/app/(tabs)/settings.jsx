@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useDispatch } from "react-redux";
 import { useRouter } from "expo-router";
-import { logout } from "@/redux/slices/authSlice";
+import { logout } from "../../redux/slices/authSlice";
 
 const Settings = () => {
   const dispatch = useDispatch();
