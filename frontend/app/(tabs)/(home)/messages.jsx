@@ -208,7 +208,7 @@ export default function Messages() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#000E08",
   },
   container: {
     flex: 1,
