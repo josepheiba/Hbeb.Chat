@@ -8,6 +8,98 @@ const {
   colors,
 } = require("unique-names-generator");
 
+module.exports.update_room_post = async (req, res) => {
+  const { room_id, name, users } = req.body;
+  const { user_id } = res.locals;
+
+  try {
+    // Check if the room exists and the user is a member
+    let room = await Room.findOne({ _id: room_id, users: user_id });
+
+    if (!room) {
+      return res
+        .status(404)
+        .json({ error: "Room not found or you're not a member" });
+    }
+
+    // Update the room name if provided
+    if (name) {
+      room.name = name;
+    }
+
+    // Update the users list if provided
+    if (users && Array.isArray(users)) {
+      // Ensure the current user remains in the room
+      if (!users.includes(user_id)) {
+        users.push(user_id);
+      }
+
+      // Validate that all user IDs are valid ObjectIds
+      const validUserIds = users.filter((id) =>
+        mongoose.Types.ObjectId.isValid(id),
+      );
+      if (validUserIds.length !== users.length) {
+        return res.status(400).json({ error: "Invalid user ID(s) provided" });
+      }
+
+      // Update the users array
+      room.users = validUserIds;
+    }
+
+    // Save the updated room
+    await room.save();
+
+    // Fetch the updated room
+    room = await Room.findById(room._id);
+
+    // Prepare the response
+    const response = {
+      room_id: room._id,
+      users: room.users,
+    };
+
+    // Add name to response if it exists
+    if (room.name) {
+      response.name = room.name;
+    }
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: "Failed to update room" });
+  }
+};
+
+module.exports.delete_room_post = async (req, res) => {
+  const { room_id } = req.body;
+  const { user_id } = res.locals;
+
+  try {
+    // Check if the room exists and the user is a member
+    const room = await Room.findOne({ _id: room_id, users: user_id });
+
+    if (!room) {
+      return res
+        .status(404)
+        .json({ error: "Room not found or you're not a member" });
+    }
+
+    // Remove the room from users' room lists
+    await User.updateMany(
+      { _id: { $in: room.users } },
+      { $pull: { rooms: room._id } },
+    );
+
+    // Delete the room
+    await Room.deleteOne({ _id: room_id });
+
+    res.status(200).json({ message: "Room deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: "Failed to delete room" });
+  }
+};
+
 module.exports.create_room_post = async (req, res) => {
   const { users } = req.body;
   const { user_id } = res.locals;
@@ -31,7 +123,7 @@ module.exports.create_room_post = async (req, res) => {
         return res.status(200).json({
           room_id: fetchRoom._id,
           users: fetchRoom.users,
-          owner: room.owner,
+          // owner: room.owner,
         });
       }
     }
@@ -41,7 +133,7 @@ module.exports.create_room_post = async (req, res) => {
       room = await Room.create({
         name: generatedName,
         users: uniqueUsers,
-        owner: user_id,
+        // owner: user_id,
       });
     } else {
       room = await Room.create({
@@ -59,7 +151,7 @@ module.exports.create_room_post = async (req, res) => {
       res.status(201).json({
         room_id: room._id,
         users: room.users,
-        owner: room.owner,
+        // owner: room.owner,
       });
     } else {
       res.status(201).json({

@@ -1,48 +1,74 @@
 const io = require("socket.io-client");
+const readline = require("readline");
 
 // The JWT token provided
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MGIyYmQ2NzA2NWU3MWIzODA1MWU3ZSIsImlhdCI6MTcyOTE5ODcyMCwiZXhwIjoxNzI5NDU3OTIwfQ.2GYnfb2Ps8HlWF1YWNNlL7RIJuwlBEydSDTMWFDg3Xg";
 
+// Room ID variable
+const roomId = "670c24a15da3df5f5ad3ce42";
+
 // Connect to the server using the token in the `auth` option
 const socket = io("http://localhost:3000", {
   auth: {
-    token: token, // Ensure the token is passed in the auth object
+    token: token,
   },
+});
+
+// Create readline interface
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
 });
 
 // Listen for connection success
 socket.on("connect", () => {
   console.log("Successfully connected to the WebSocket server!");
 
-  // Send a message to the server
-  socket.emit("message", "Hello from client!");
+  // Join the room
+  socket.emit("join_room", roomId);
 
-  // Listen for server's response
-  socket.on("message", (data) => {
-    console.log(`Server responded: ${data}`);
-  });
+  console.log(
+    "Type your message and press Enter to send. Type 'exit' to quit.",
+  );
 
-  // Handle disconnection
-  socket.on("disconnect", () => {
-    console.log("Disconnected from the server.");
-  });
+  // Start listening for user input
+  getUserInput();
+});
 
-  // Keep sending messages
-  sendPeriodicMessages();
+// Listen for server's response
+socket.on("message", (data) => {
+  console.log(`Received: ${JSON.stringify(data)}`);
+});
+
+// Handle disconnection
+socket.on("disconnect", () => {
+  console.log("Disconnected from the server.");
+  rl.close();
 });
 
 // Handle connection errors
 socket.on("connect_error", (err) => {
   console.error(`Connection error: ${err.message}`);
+  rl.close();
 });
 
-function sendPeriodicMessages() {
-  let messageCount = 1;
-  setInterval(() => {
-    const message = `Periodic message ${messageCount}`;
-    console.log(`Sending: ${message}`);
+function getUserInput() {
+  rl.question("", (input) => {
+    if (input.toLowerCase() === "exit") {
+      console.log("Exiting...");
+      socket.disconnect();
+      rl.close();
+      return;
+    }
+
+    const message = {
+      room_id: roomId,
+      content: input,
+    };
+    console.log(`Sending: ${JSON.stringify(message)}`);
     socket.emit("message", message);
-    messageCount++;
-  }, 5000); // Send a message every 5 seconds
+
+    getUserInput(); // Continue listening for input
+  });
 }
