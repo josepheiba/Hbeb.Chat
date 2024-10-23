@@ -3,8 +3,7 @@ const readline = require("readline");
 
 // The JWT token provided
 const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTEyOTcxYjY1NzViYWVhY2JiZGY2NyIsImlhdCI6MTcyOTIwMDE2NCwiZXhwIjoxNzI5NDU5MzY0fQ.SyDpw7hLlWTWGv8WS3IMf_MPf6rYfe-ok_1SfoZNSPE";
-
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTEyOTcxYjY1NzViYWVhY2JiZGY2NyIsImlhdCI6MTcyOTYzNDA4NywiZXhwIjoxNzI5ODkzMjg3fQ.ZXXDQ_1Ab6UlNiNGIHr9EtYH_iD_LJkACVJ5egayEDo";
 // Room ID variable
 const roomId = "670c24a15da3df5f5ad3ce42";
 
