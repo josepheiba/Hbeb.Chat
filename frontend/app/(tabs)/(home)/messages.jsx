@@ -132,19 +132,20 @@ export default function Messages() {
   }, [dispatch]);
 
   const conversationList = rooms.map((room) => ({
-    id: room.id,
+    id: room._id,
     name: room.name, // Adjust according to your room object structure
     lastMessage: room.lastMessage,
     time: room.lastMessageTime,
   }));
 
   const handleDelete = (id) => {
-    setConversationList(conversationList.filter((conv) => conv.id !== id));
+    // setConversationList(conversationList.filter((conv) => conv.id !== id));
+    console.log("Delete conversation with id: ", id);
   };
 
   const handleConversationPress = (conversation) => {
     router.push({
-      pathname: "(tabs)/(home)/room/[id]",
+      pathname: "/room/[id]",
       params: { id: conversation.id, name: conversation.name },
     });
   };
@@ -188,7 +189,7 @@ export default function Messages() {
                 />
               )}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.conversationsContent}
+              // contentContainerStyle={styles.conversationsContent}
             />
           </View>
         </View>

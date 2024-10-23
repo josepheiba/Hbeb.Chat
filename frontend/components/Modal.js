@@ -3,18 +3,23 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
   StyleSheet,
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from "react-native";
+import { sendFriendRequestApi } from "../api/fiendRequestApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import CustomButton from "./common/CustomButton";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Modal = ({ visible, setVisible }) => {
-  const [groupName, setGroupName] = useState("");
+  const [mode, setMode] = useState("group"); // "group" or "friend"
+  const [inputValue, setInputValue] = useState("");
   const [animation] = useState(new Animated.Value(SCREEN_HEIGHT));
 
   useEffect(() => {
@@ -32,11 +37,44 @@ const Modal = ({ visible, setVisible }) => {
     }
   }, [visible]);
 
-  const closeModal = () => setVisible(false);
+  const closeModal = () => {
+    setVisible(false);
+    setMode("group");
+    setInputValue("");
+  };
 
-  const handleCreateRoom = () => {
-    console.log({ groupName });
+  const handleAction = async () => {
+    if (mode === "group") {
+      console.log("Create group:", inputValue);
+      // Implement group creation logic here
+    } else {
+      try {
+        const token = await AsyncStorage.getItem("authToken");
+        const userId = await AsyncStorage.getItem("userId");
+
+        const response = await sendFriendRequestApi(token, userId, inputValue);
+        if (response.success) {
+          Alert.alert("Success", "Friend request sent successfully!");
+        } else {
+          Alert.alert(
+            "Error",
+            response.message || "Failed to send friend request.",
+          );
+        }
+      } catch (error) {
+        console.error("Error sending friend request:", error);
+        Alert.alert(
+          "Error",
+          "An error occurred while sending the friend request.",
+        );
+      }
+    }
     closeModal();
+  };
+
+  const toggleMode = () => {
+    setMode(mode === "group" ? "friend" : "group");
+    setInputValue("");
   };
 
   if (!visible) return null;
@@ -52,24 +90,33 @@ const Modal = ({ visible, setVisible }) => {
             ]}
           >
             <View style={styles.handle} />
-            <Text style={styles.modalSubheading}>Enter your Group name</Text>
+            <Text style={styles.modalSubheading}>
+              {mode === "group" ? "Create Group" : "Add Friend"}
+            </Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="Group name"
-              onChangeText={(value) => setGroupName(value)}
+              placeholder={
+                mode === "group" ? "Group name" : "Friend's username"
+              }
+              onChangeText={(value) => setInputValue(value)}
+              value={inputValue}
             />
 
-            <View style={styles.modalButtonContainer}>
-              <Pressable style={styles.modalButton} onPress={handleCreateRoom}>
-                <Text style={styles.modalText}>CREATE</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modalButton, { backgroundColor: "#E14D2A" }]}
-                onPress={closeModal}
-              >
-                <Text style={styles.modalText}>CANCEL</Text>
-              </Pressable>
+            <View style={styles.buttonContainer}>
+              <CustomButton
+                title={mode === "group" ? "CREATE" : "ADD"}
+                onPress={handleAction}
+                text={mode === "group" ? "Create Group" : "Add Friend"}
+              />
             </View>
+
+            <TouchableWithoutFeedback onPress={toggleMode}>
+              <Text style={styles.toggleText}>
+                {mode === "group"
+                  ? "Add a friend instead"
+                  : "Create a group instead"}
+              </Text>
+            </TouchableWithoutFeedback>
           </Animated.View>
         </TouchableWithoutFeedback>
       </View>
@@ -123,22 +170,13 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 15,
   },
-  modalButtonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  buttonContainer: {
     width: "100%",
+    marginBottom: 15,
   },
-  modalButton: {
-    width: "48%",
-    height: 45,
-    backgroundColor: "green",
-    borderRadius: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalText: {
-    color: "#fff",
-    fontWeight: "bold",
+  toggleText: {
+    color: "#007AFF",
+    textDecorationLine: "underline",
   },
 });
 
