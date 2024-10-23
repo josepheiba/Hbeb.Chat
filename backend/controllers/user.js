@@ -83,15 +83,22 @@ module.exports.delete_user_post = async (req, res) => {
 
 module.exports.friend_request_post = async (req, res) => {
   const { user_id } = res.locals;
+  const { email } = req.body;
   const { friend_id } = req.body;
+  let friend_id_email;
+  if (email && !friend_id) {
+    const friend = await User.findOne({ email });
+    friend_id_email = friend._id;
+  }
+  const friendId = friend_id || friend_id_email;
   try {
-    if (!mongoose.Types.ObjectId.isValid(friend_id)) {
+    if (!mongoose.Types.ObjectId.isValid(friendId)) {
       return res.status(400).json({ friend_id: "Invalid friend_id" });
     }
     const updatedUser = await User.findByIdAndUpdate(
-      user_id,
+      friendId,
       {
-        $push: { friendRequests: friend_id },
+        $addToSet: { friendRequests: user_id },
       },
       { new: true },
     );
