@@ -32,7 +32,6 @@ function setupWebSocket(io) {
         });
         if (room) {
           socket.join(room_id);
-          socket.rooms.add(room_id);
           console.log(`User ${socket.decoded.id} joined room ${room_id}`);
         } else {
           socket.emit("error", "Not allowed to join this room");

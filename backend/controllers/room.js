@@ -168,6 +168,7 @@ module.exports.create_room_post = async (req, res) => {
 module.exports.fetch_room_post = async (req, res) => {
   const errors = { room_ids: "" };
   const { user_id } = res.locals;
+  let rooms;
   try {
     if (req.body.room_ids && req.body.room_ids.length > 0) {
       const { room_ids } = req.body;
@@ -178,10 +179,12 @@ module.exports.fetch_room_post = async (req, res) => {
       if (validRoom_ids.length !== room_ids.length) {
         throw { room_ids: "Invalid room id(s)" };
       }
-      const rooms = await Room.find({
+      rooms = await Room.find({
         _id: { $in: validRoom_ids },
         users: user_id,
       });
+      console.log("ok");
+      console.log(rooms);
       if (rooms.length > 0) {
         return res.status(200).json(rooms);
       }
@@ -189,10 +192,10 @@ module.exports.fetch_room_post = async (req, res) => {
     if (req.body.users) {
       const { users } = req.body;
       await validateUsersExist(users, user_id);
-      const rooms = await Room.find({
+      rooms = await Room.find({
         users: {
           $all: users,
-          $size: users.length,
+          // $size: users.length,
         },
       });
       if (rooms.length > 0) {
@@ -202,6 +205,9 @@ module.exports.fetch_room_post = async (req, res) => {
     if (!req.body.room_ids && !req.body.users && res.locals.user_id) {
       const rooms = await Room.find({ users: user_id });
       return res.status(200).json(rooms);
+    }
+    if (rooms.length == 0) {
+      throw { room_ids: "No room found" };
     }
   } catch (error) {
     console.log(error);
