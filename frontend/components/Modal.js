@@ -50,10 +50,10 @@ const Modal = ({ visible, setVisible }) => {
     } else {
       try {
         const token = await AsyncStorage.getItem("authToken");
-        const userId = await AsyncStorage.getItem("userId");
+        const userId = await AsyncStorage.getItem("user_id");
 
         const response = await sendFriendRequestApi(token, userId, inputValue);
-        if (response.success) {
+        if (response && response._id) {
           Alert.alert("Success", "Friend request sent successfully!");
         } else {
           Alert.alert(

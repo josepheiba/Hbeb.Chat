@@ -6,15 +6,16 @@ export const sendFriendRequestApi = async (token, userId, friendEmail) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           token,
           user_id: userId,
-          friendemail: friendEmail,
+          email: friendEmail,
         }),
       },
     );
+
+    console.log(userId);
 
     const data = await response.json();
     return data;
