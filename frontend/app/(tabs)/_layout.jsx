@@ -1,8 +1,13 @@
+import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import { useSegments } from "expo-router";
 
 export default function TabLayout() {
+  const segment = useSegments();
+  const page = segment[segment.length - 1];
+  const pagesToHideTabBar = ["new-chat"];
+
   return (
     <Tabs
       screenOptions={{
@@ -13,6 +18,7 @@ export default function TabLayout() {
           borderTopWidth: 0.1,
           borderTopColor: "#797C7B",
           backgroundColor: "#fff",
+          display: pagesToHideTabBar.includes(page) ? "none" : "flex",
         },
         tabBarLabelStyle: {
           fontSize: 14,

@@ -1,15 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import ChatRoom from "../../../../components/ChatRoom";
 
 export default function Room() {
   const { id, name } = useLocalSearchParams();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Chat with {name}</Text>
-      <Text>Conversation ID: {id}</Text>
-      {/* Add your chat UI components here */}
+      <ChatRoom roomId={id} />
     </View>
   );
 }
@@ -17,12 +16,5 @@ export default function Room() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 10,
   },
 });

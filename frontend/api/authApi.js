@@ -106,9 +106,10 @@ export const registerApi = async (userData) => {
     const data = await response.json();
 
     // Store the token if it's returned upon registration
-    if (data.token) {
+    if (data.token && data.user_id) {
       console.log("Storing the token..." + data.token);
       await AsyncStorage.setItem("authToken", data.token);
+      await AsyncStorage.setItem("user_id", data.user_id);
     }
 
     return data;
