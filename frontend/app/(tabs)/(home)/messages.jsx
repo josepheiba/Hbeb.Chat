@@ -161,7 +161,7 @@ export default function Messages() {
               <Ionicons name="search-outline" size={35} color="white" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Home</Text>
-            <Pressable onPress={() => setVisible(true)}>
+            <Pressable onPress={() => router.push("/new-chat")}>
               <Feather name="edit" size={24} color="green" />
             </Pressable>
           </View>
@@ -193,7 +193,7 @@ export default function Messages() {
             />
           </View>
         </View>
-        <Modal visible={visible} setVisible={setVisible} />
+        {/* <Modal visible={visible} setVisible={setVisible} /> */}
       </SafeAreaView>
       {/* </View> */}
     </ProtectedRoute>
