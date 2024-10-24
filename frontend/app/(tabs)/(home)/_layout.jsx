@@ -13,6 +13,9 @@ export default function HomeLayout() {
           fontWeight: "bold",
         },
       }}
-    ></Stack>
+    >
+      <Stack.Screen name="messages" />
+      <Stack.Screen name="new-chat" />
+    </Stack>
   );
 }
