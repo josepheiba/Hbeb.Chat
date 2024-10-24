@@ -107,3 +107,36 @@ module.exports.friend_request_post = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
+module.exports.friend_accept_post = async (req, res) => {
+  user_id = res.locals.user_id;
+  const { friend_id } = req.body;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(friend_id)) {
+      return res.status(400).json({ friend_id: "Invalid friend_id" });
+    }
+    const friend = await User.findById(friend_id);
+    if (!friend) {
+      return res.status(404).json({ friend_id: "Friend not found" });
+    }
+    current_user = await User.findByIdAndUpdate(
+      user_id,
+      {
+        $addToSet: { friends: friend_id },
+        $pull: { friendRequests: friend_id },
+      },
+      { new: true },
+    );
+    await User.findByIdAndUpdate(
+      friend_id,
+      {
+        $addToSet: { friends: user_id },
+      },
+      { new: true },
+    );
+    res.status(200).json(current_user);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+};
