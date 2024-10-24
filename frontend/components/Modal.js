@@ -161,20 +161,22 @@ const Modal = ({ visible, setVisible, friends }) => {
                 )}
               </>
             )}
-            <View style={styles.buttonContainer}>
-              <CustomButton
-                title={mode === "group" ? "CREATE" : "ADD"}
-                onPress={handleAction}
-                text={mode === "group" ? "Create Group" : "Add Friend"}
-              />
+            <View style={styles.bottomContainer}>
+              <TouchableWithoutFeedback onPress={toggleMode}>
+                <Text style={styles.toggleText}>
+                  {mode === "group"
+                    ? "Add a friend instead"
+                    : "Create a group instead"}
+                </Text>
+              </TouchableWithoutFeedback>
+              <View style={styles.buttonContainer}>
+                <CustomButton
+                  title={mode === "group" ? "CREATE" : "ADD"}
+                  onPress={handleAction}
+                  text={mode === "group" ? "Create Group" : "Add Friend"}
+                />
+              </View>
             </View>
-            <TouchableWithoutFeedback onPress={toggleMode}>
-              <Text style={styles.toggleText}>
-                {mode === "group"
-                  ? "Add a friend instead"
-                  : "Create a group instead"}
-              </Text>
-            </TouchableWithoutFeedback>
           </Animated.View>
         </TouchableWithoutFeedback>
       </View>
@@ -193,6 +195,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContainer: {
+    height: "80%",
     backgroundColor: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -294,6 +297,12 @@ const styles = StyleSheet.create({
   toggleText: {
     color: "#007AFF",
     textDecorationLine: "underline",
+  },
+  bottomContainer: {
+    position: "absolute",
+    alignItems: "center",
+    bottom: 20,
+    width: "100%",
   },
 });
 
