@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,13 +10,17 @@ import {
   Platform,
   Animated,
   PanResponder,
+  Pressable,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { getRooms } from "../../../redux/thunks/roomsThunks";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
 import { useRouter } from "expo-router";
+import Modal from "../../../components/Modal";
 
 // Dummy data for stories and conversations
 const stories = [
@@ -25,27 +29,6 @@ const stories = [
   { id: "3", name: "Mike", image: "https://via.placeholder.com/50" },
   { id: "4", name: "Emma", image: "https://via.placeholder.com/50" },
   { id: "5", name: "David", image: "https://via.placeholder.com/50" },
-];
-
-const conversations = [
-  {
-    id: "1",
-    name: "Alice",
-    lastMessage: "Hey, how are you?",
-    time: "10:30 AM",
-  },
-  {
-    id: "2",
-    name: "Bob",
-    lastMessage: "Can we meet tomorrow?",
-    time: "Yesterday",
-  },
-  {
-    id: "3",
-    name: "Charlie",
-    lastMessage: "Thanks for the help!",
-    time: "2 days ago",
-  },
 ];
 
 const StoryItem = ({ story }) => (
@@ -138,17 +121,31 @@ const ConversationItem = ({ conversation, onDelete, onPress }) => {
 const ios = Platform.OS === "ios";
 
 export default function Messages() {
-  const [conversationList, setConversationList] = useState(conversations);
+  const [visible, setVisible] = useState(false);
+  const dispatch = useDispatch();
+  const { rooms, loading, error } = useSelector((state) => state.rooms);
   const { top } = useSafeAreaInsets();
   const router = useRouter();
 
+  useEffect(() => {
+    dispatch(getRooms());
+  }, [dispatch]);
+
+  const conversationList = rooms.map((room) => ({
+    id: room._id,
+    name: room.name, // Adjust according to your room object structure
+    lastMessage: room.lastMessage,
+    time: room.lastMessageTime,
+  }));
+
   const handleDelete = (id) => {
-    setConversationList(conversationList.filter((conv) => conv.id !== id));
+    // setConversationList(conversationList.filter((conv) => conv.id !== id));
+    console.log("Delete conversation with id: ", id);
   };
 
   const handleConversationPress = (conversation) => {
     router.push({
-      pathname: "(tabs)/(home)/room/[id]",
+      pathname: "/room/[id]",
       params: { id: conversation.id, name: conversation.name },
     });
   };
@@ -164,12 +161,9 @@ export default function Messages() {
               <Ionicons name="search-outline" size={35} color="white" />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Home</Text>
-            <TouchableOpacity style={styles.profileAvatar}>
-              <Image
-                source={{ uri: "https://via.placeholder.com/40" }}
-                style={styles.avatarImage}
-              />
-            </TouchableOpacity>
+            <Pressable onPress={() => router.push("/new-chat")}>
+              <Feather name="edit" size={24} color="green" />
+            </Pressable>
           </View>
 
           <View style={styles.storiesSection}>
@@ -195,10 +189,11 @@ export default function Messages() {
                 />
               )}
               keyExtractor={(item) => item.id}
-              contentContainerStyle={styles.conversationsContent}
+              // contentContainerStyle={styles.conversationsContent}
             />
           </View>
         </View>
+        {/* <Modal visible={visible} setVisible={setVisible} /> */}
       </SafeAreaView>
       {/* </View> */}
     </ProtectedRoute>
@@ -208,7 +203,7 @@ export default function Messages() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#000E08",
   },
   container: {
     flex: 1,
