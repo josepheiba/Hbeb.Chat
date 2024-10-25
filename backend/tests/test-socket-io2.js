@@ -35,11 +35,6 @@ socket.on("connect", () => {
   getUserInput();
 });
 
-// Listen for server's response
-socket.on("message", (data) => {
-  console.log(`Received: ${JSON.stringify(data)}`);
-});
-
 // Handle disconnection
 socket.on("disconnect", () => {
   console.log("Disconnected from the server.");
@@ -50,6 +45,21 @@ socket.on("disconnect", () => {
 socket.on("connect_error", (err) => {
   console.error(`Connection error: ${err.message}`);
   rl.close();
+});
+
+socket.on("message", (data) => {
+  const identifier = data.username || data.email;
+  console.log(`[${data.sender}] ${identifier}: ${data.content}`);
+});
+
+// Update the previous_messages handler
+socket.on("previous_messages", (data) => {
+  console.log("\nPrevious messages:");
+  data.messages.forEach((message) => {
+    const identifier = message.sender.username || message.sender.email;
+    console.log(`[${message.sender._id}] ${identifier}: ${message.content}`);
+  });
+  console.log("\n");
 });
 
 function getUserInput() {

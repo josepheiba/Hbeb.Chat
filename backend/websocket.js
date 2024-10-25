@@ -33,6 +33,28 @@ function setupWebSocket(io) {
         if (room) {
           socket.join(room_id);
           console.log(`User ${socket.decoded.id} joined room ${room_id}`);
+
+          const messages = await Message.find({ room: room_id })
+            .sort({ timestamp: -1 })
+            .limit(20)
+            .populate("sender", "username email")
+            .lean();
+
+          console.log(`Found ${messages.length} messages for room ${room_id}`);
+          console.log("Emitting previous_messages event");
+
+          const formattedMessages = messages.map((msg) => ({
+            _id: msg._id,
+            user_id: msg.sender._id,
+            sender: msg.sender,
+            content: msg.content,
+            timestamp: msg.timestamp,
+          }));
+
+          socket.emit("previous_messages", {
+            messages: formattedMessages.reverse(),
+            hasMore: messages.length === 20,
+          });
         } else {
           socket.emit("error", "Not allowed to join this room");
           console.log(
@@ -58,6 +80,7 @@ function setupWebSocket(io) {
         readBy: [socket.decoded.id],
       });
       await message.save();
+      await message.populate("sender", "username email");
 
       // Update room's lastActivity
       await Room.findByIdAndUpdate(room_id, { lastActivity: new Date() });
@@ -65,8 +88,10 @@ function setupWebSocket(io) {
       console.log(`Received in room ${room_id}: ${content}`);
       io.to(room_id).emit("message", {
         _id: message._id,
-        user_id: socket.decoded.id,
-        content: content,
+        sender: message.sender._id,
+        username: message.sender.username,
+        email: message.sender.email,
+        content: message.content,
         timestamp: message.timestamp,
       });
     });
