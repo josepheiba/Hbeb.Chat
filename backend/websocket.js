@@ -45,7 +45,6 @@ function setupWebSocket(io) {
 
           const formattedMessages = messages.map((msg) => ({
             _id: msg._id,
-            user_id: msg.sender._id,
             sender: msg.sender,
             content: msg.content,
             timestamp: msg.timestamp,
@@ -88,12 +87,61 @@ function setupWebSocket(io) {
       console.log(`Received in room ${room_id}: ${content}`);
       io.to(room_id).emit("message", {
         _id: message._id,
-        sender: message.sender._id,
-        username: message.sender.username,
-        email: message.sender.email,
+        sender: message.sender,
         content: message.content,
         timestamp: message.timestamp,
       });
+    });
+
+    socket.on("load_more_messages", async ({ room_id, lastMessageId }) => {
+      try {
+        const room = await Room.findOne({
+          _id: room_id,
+          users: socket.decoded.id,
+        });
+
+        if (!room) {
+          socket.emit("error", "Not allowed to access this room");
+          return;
+        }
+
+        // Get messages older than the last message
+        const messages = await Message.find({
+          room: room_id,
+          _id: { $lt: new mongoose.Types.ObjectId(lastMessageId) },
+        })
+          .sort({ _id: -1 })
+          .limit(20)
+          .populate("sender", "username email")
+          .lean();
+
+        console.log(
+          `Found ${messages.length} more messages for room ${room_id}`,
+        );
+
+        if (messages.length === 0) {
+          socket.emit("more_messages", {
+            messages: [],
+            hasMore: false,
+          });
+          return;
+        }
+
+        const formattedMessages = messages.map((msg) => ({
+          _id: msg._id,
+          sender: msg.sender,
+          content: msg.content,
+          timestamp: msg.timestamp,
+        }));
+
+        socket.emit("more_messages", {
+          messages: formattedMessages.reverse(),
+          hasMore: messages.length === 20,
+        });
+      } catch (error) {
+        console.error("Error loading more messages:", error);
+        socket.emit("error", "Failed to load more messages");
+      }
     });
 
     // Handle disconnection

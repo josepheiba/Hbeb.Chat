@@ -48,17 +48,51 @@ socket.on("connect_error", (err) => {
 });
 
 socket.on("message", (data) => {
-  const identifier = data.username || data.email;
-  console.log(`[${data.sender}] ${identifier}: ${data.content}`);
+  const identifier = data.sender.username || data.sender.email;
+  console.log(`[${data.sender._id}] ${identifier}: ${data.content}`);
 });
 
-// Update the previous_messages handler
+let oldestMessageId = null;
+
 socket.on("previous_messages", (data) => {
   console.log("\nPrevious messages:");
+  if (data.messages.length > 0) {
+    data.messages.forEach((message) => {
+      const identifier = message.sender.username || message.sender.email;
+      console.log(`[${message.sender._id}] ${identifier}: ${message.content}`);
+    });
+    oldestMessageId = data.messages[0]._id; // Get first message ID (oldest)
+  }
+  console.log(
+    data.hasMore
+      ? "\nType 'load' to load more messages."
+      : "\nNo more messages to load.",
+  );
+  console.log("\n");
+});
+
+socket.on("more_messages", (data) => {
+  if (data.messages.length === 0) {
+    console.log("\nNo more messages to load.");
+    oldestMessageId = null;
+    return;
+  }
+
+  console.log("\nOlder messages:");
   data.messages.forEach((message) => {
     const identifier = message.sender.username || message.sender.email;
     console.log(`[${message.sender._id}] ${identifier}: ${message.content}`);
   });
+
+  if (data.messages.length > 0) {
+    oldestMessageId = data.messages[0]._id; // Get first message ID (oldest)
+  }
+
+  console.log(
+    data.hasMore
+      ? "\nType 'load' to load more messages."
+      : "\nNo more messages to load.",
+  );
   console.log("\n");
 });
 
@@ -71,6 +105,21 @@ function getUserInput() {
       return;
     }
 
+    if (input.toLowerCase() === "load") {
+      if (oldestMessageId) {
+        console.log("Loading older messages...");
+        socket.emit("load_more_messages", {
+          room_id: roomId,
+          lastMessageId: oldestMessageId,
+        });
+      } else {
+        console.log("No more messages to load.");
+      }
+      getUserInput();
+      return;
+    }
+
+    // Add this back for sending messages
     const message = {
       room_id: roomId,
       content: input,

@@ -48,8 +48,8 @@ socket.on("connect_error", (err) => {
 });
 
 socket.on("message", (data) => {
-  const identifier = data.username || data.email;
-  console.log(`[${data.sender}] ${identifier}: ${data.content}`);
+  const identifier = data.sender.username || data.sender.email;
+  console.log(`[${data.sender._id}] ${identifier}: ${data.content}`);
 });
 
 // Update the previous_messages handler
