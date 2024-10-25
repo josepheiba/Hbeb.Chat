@@ -85,16 +85,26 @@ module.exports.friend_request_post = async (req, res) => {
   const { user_id } = res.locals;
   const { email } = req.body;
   const { friend_id } = req.body;
-  let friend_id_email;
-  if (email && !friend_id) {
-    const friend = await User.findOne({ email });
-    friend_id_email = friend._id;
-  }
-  const friendId = friend_id || friend_id_email;
+
   try {
-    if (!mongoose.Types.ObjectId.isValid(friendId)) {
-      return res.status(400).json({ friend_id: "Invalid friend_id" });
+    // Get friend_id either from direct input or email lookup
+    let friend_id_email;
+    if (email && !friend_id) {
+      const friend = await User.findOne({ email });
+      if (!friend) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      friend_id_email = friend._id;
     }
+    const friendId = friend_id || friend_id_email;
+
+    // Check if already friends
+    const requestingUser = await User.findById(user_id);
+    if (requestingUser.friends.includes(friendId)) {
+      return res.status(400).json({ error: "Already friends with this user" });
+    }
+
+    // If not friends, proceed with friend request
     const updatedUser = await User.findByIdAndUpdate(
       friendId,
       {
@@ -102,6 +112,7 @@ module.exports.friend_request_post = async (req, res) => {
       },
       { new: true },
     );
+
     res.status(200).json(updatedUser);
   } catch (error) {
     res.status(400).json(error);
