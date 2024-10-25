@@ -2,11 +2,6 @@ const User = require("../models/user");
 const Room = require("../models/room");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const {
-  uniqueNamesGenerator,
-  adjectives,
-  colors,
-} = require("unique-names-generator");
 
 module.exports.update_room_post = async (req, res) => {
   const { room_id, name, users } = req.body;
@@ -101,14 +96,12 @@ module.exports.delete_room_post = async (req, res) => {
 };
 
 module.exports.create_room_post = async (req, res) => {
-  const { users } = req.body;
+  const { users, name } = req.body;
   const { user_id } = res.locals;
 
   try {
     await validateUsersExist(users, user_id);
-    const generatedName = uniqueNamesGenerator({
-      dictionaries: [adjectives, colors],
-    });
+    const generatedName = name || "Untitled";
 
     const uniqueUsers = [...new Set(users)];
 
