@@ -16,7 +16,7 @@ import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
 import CustomButton from "../../../components/common/CustomButton";
-import { sendFriendRequestApi } from "../../../api/fiendRequestApi";
+import { sendFriendRequestApi } from "../../../api/friendRequestApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendSelectionScreen from "../../../components/FriendSelectionScreen";
 
