@@ -6,7 +6,7 @@ import { useSegments } from "expo-router";
 export default function TabLayout() {
   const segment = useSegments();
   const page = segment[segment.length - 1];
-  const pagesToHideTabBar = ["new-chat"];
+  const pagesToHideTabBar = ["new-chat", "[id]"];
 
   return (
     <Tabs
