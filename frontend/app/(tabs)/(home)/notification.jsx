@@ -8,20 +8,30 @@ import {
   ActivityIndicator,
   SafeAreaView,
   StatusBar,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "expo-router";
 import { fetchUserData } from "../../../redux/thunks/userThunks";
 import { Ionicons } from "@expo/vector-icons";
-import { acceptFriendRequestApi } from "../../../api/friendRequestApi";
+import {
+  acceptFriendRequestApi,
+  rejectFriendRequestApi,
+} from "../../../api/friendRequestApi";
 
 const Notification = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { userData, loading, error } = useSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(fetchUserData());
   }, [dispatch]);
+
+  const handleBack = () => {
+    router.back();
+  };
 
   const handleAcceptRequest = async (friendId) => {
     console.log("Accept friend request:", friendId);
@@ -29,10 +39,21 @@ const Notification = () => {
       const token = await AsyncStorage.getItem("authToken");
       const userId = await AsyncStorage.getItem("user_id");
       await acceptFriendRequestApi(token, userId, friendId);
-      // Refresh user data after accepting request
       dispatch(fetchUserData());
     } catch (error) {
       console.error("Error accepting friend request:", error);
+    }
+  };
+
+  const handleDeclineRequest = async (friendId) => {
+    console.log("Decline friend request:", friendId);
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      const userId = await AsyncStorage.getItem("user_id");
+      await rejectFriendRequestApi(token, userId, friendId);
+      dispatch(fetchUserData());
+    } catch (error) {
+      console.error("Error declining friend request:", error);
     }
   };
 
@@ -81,7 +102,11 @@ const Notification = () => {
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
       <View style={styles.header}>
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#007AFF" />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
+        <View style={styles.placeholder} />
       </View>
       <FlatList
         data={userData?.friendRequests || []}
@@ -101,6 +126,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    paddingTop: Platform.OS === "android" ? 25 : 0,
   },
   centerContainer: {
     flex: 1,
@@ -108,13 +134,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+    backgroundColor: "#fff",
+    zIndex: 1,
+  },
+  backButton: {
+    padding: 4,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#000",
+  },
+  placeholder: {
+    width: 32,
   },
   requestItem: {
     padding: 16,
