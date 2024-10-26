@@ -9,6 +9,7 @@ import {
   FlatList,
   Platform,
   Pressable,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +21,7 @@ import { getRooms } from "../../../redux/thunks/roomsThunks";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
 import ConversationItem from "../../../components/messages/ConversationItem";
 import StoryItem from "../../../components/messages/StoryItem";
+import { deleteRoom } from "../../../api/deleteRoom";
 
 // Dummy data for stories and conversations
 const stories = [
@@ -43,14 +45,30 @@ export default function Messages() {
 
   const conversationList = rooms.map((room) => ({
     id: room._id,
-    name: room.name, // Adjust according to your room object structure
-    lastMessage: room.lastMessage,
-    time: room.lastMessageTime,
+    name: room.name,
+    lastMessage: room.lastMessage || "",
+    time: room.lastMessage?.timestamp || "",
   }));
 
-  const handleDelete = (id) => {
-    // setConversationList(conversationList.filter((conv) => conv.id !== id));
-    console.log("Delete conversation with id: ", id);
+  const handleDelete = async (id) => {
+    try {
+      onPress: async () => {
+        try {
+          await deleteRoom(id);
+          // After successful deletion, refresh the rooms list
+          dispatch(getRooms());
+        } catch (error) {
+          Alert.alert(
+            "Error",
+            "Failed to delete conversation. Please try again.",
+          );
+          console.error("Error deleting room:", error);
+        }
+      };
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong. Please try again.");
+      console.error("Error in handleDelete:", error);
+    }
   };
 
   const handleConversationPress = (conversation) => {
@@ -114,7 +132,6 @@ export default function Messages() {
             />
           </View>
         </View>
-        {/* <Modal visible={visible} setVisible={setVisible} /> */}
       </SafeAreaView>
       {/* </View> */}
     </ProtectedRoute>

@@ -39,8 +39,8 @@ export default function Contacts() {
     <View style={styles.contactItem}>
       <View style={styles.avatar} />
       <View style={styles.contactInfo}>
-        <Text style={styles.contactName}>{item.name}</Text>
-        <Text style={styles.contactStatus}>{item.status}</Text>
+        <Text style={styles.contactName}>{item.email}</Text>
+        <Text style={styles.contactStatus}>{item.phone}</Text>
       </View>
     </View>
   );
@@ -75,7 +75,7 @@ export default function Contacts() {
             <FlatList
               data={contacts}
               renderItem={renderContactItem}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={(item) => item._id.toString()}
               style={styles.contactsList}
             />
           )}

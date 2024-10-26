@@ -9,28 +9,84 @@ import {
   TextInput,
   StatusBar,
   Platform,
+  ActivityIndicator,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
 import { Ionicons } from "@expo/vector-icons";
+import { fetchContacts } from "../redux/thunks/contactsThunks";
 
-const FriendSelectionScreen = ({
-  friends,
-  selectedFriends,
-  onSelect,
-  onClose,
-}) => {
+const FriendSelectionScreen = ({ selectedFriends, onSelect, onClose }) => {
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredFriends, setFilteredFriends] = useState(friends);
+  const { contacts, loading, error } = useSelector((state) => state.contacts);
+  const [filteredContacts, setFilteredContacts] = useState([]);
 
+  // Fetch contacts when component mounts
   useEffect(() => {
-    if (searchQuery.trim() === "") {
-      setFilteredFriends(friends);
-    } else {
-      const filtered = friends.filter((friend) =>
-        friend.username.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-      setFilteredFriends(filtered);
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
+  // Filter contacts based on search query
+  useEffect(() => {
+    if (contacts) {
+      if (searchQuery.trim() === "") {
+        setFilteredContacts(contacts);
+      } else {
+        const filtered = contacts.filter((contact) =>
+          contact.email.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
+        setFilteredContacts(filtered);
+      }
     }
-  }, [searchQuery, friends]);
+  }, [searchQuery, contacts]);
+
+  const renderFriendItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.friendItem}
+      onPress={() => onSelect(item._id)}
+      activeOpacity={0.7}
+    >
+      <View style={styles.friendInfo}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>
+            {item.email.charAt(0).toUpperCase()}
+          </Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={styles.friendName}>{item.email}</Text>
+          {item.phone && <Text style={styles.phoneNumber}>{item.phone}</Text>}
+        </View>
+      </View>
+      <View style={styles.checkboxContainer}>
+        <View
+          style={[
+            styles.checkbox,
+            selectedFriends.includes(item._id) && styles.checkboxSelected,
+          ]}
+        >
+          {selectedFriends.includes(item._id) && (
+            <Ionicons name="checkmark" size={18} color="#FFF" />
+          )}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>Error loading contacts: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,36 +117,12 @@ const FriendSelectionScreen = ({
 
       <FlatList
         style={styles.list}
-        data={filteredFriends}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.friendItem}
-            onPress={() => onSelect(item._id)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.friendInfo}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
-                  {item.username.charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <Text style={styles.friendName}>{item.username}</Text>
-            </View>
-            <View style={styles.checkboxContainer}>
-              <View
-                style={[
-                  styles.checkbox,
-                  selectedFriends.includes(item._id) && styles.checkboxSelected,
-                ]}
-              >
-                {selectedFriends.includes(item._id) && (
-                  <Ionicons name="checkmark" size={18} color="#FFF" />
-                )}
-              </View>
-            </View>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item._id}
+        data={filteredContacts}
+        renderItem={renderFriendItem}
+        keyExtractor={(item) => item._id.toString()}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>No contacts found</Text>
+        }
       />
     </SafeAreaView>
   );
@@ -101,6 +133,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: Platform.OS === "android" ? 25 : 0, // Add padding for Android status bar
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  errorText: {
+    color: "red",
+    textAlign: "center",
+    padding: 20,
+  },
+  emptyText: {
+    textAlign: "center",
+    padding: 20,
+    color: "#666",
   },
   header: {
     flexDirection: "row",
@@ -148,6 +196,29 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
   },
+  phoneNumber: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 2,
+  },
+  friendName: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#000",
+  },
+  friendInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#007AFF",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
   friendItem: {
     flexDirection: "row",
     alignItems: "center",
@@ -155,19 +226,6 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
-  },
-  friendInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#007AFF",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
   },
   avatarText: {
     color: "#FFF",

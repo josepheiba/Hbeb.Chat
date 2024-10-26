@@ -19,6 +19,9 @@ import CustomButton from "../../../components/common/CustomButton";
 import { sendFriendRequestApi } from "../../../api/friendRequestApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendSelectionScreen from "../../../components/FriendSelectionScreen";
+import { useDispatch } from "react-redux";
+import { createRoomApi } from "../../../api/createRoom";
+import { getRooms } from "../../../redux/thunks/roomsThunks";
 
 export default function NewChatScreen() {
   const [mode, setMode] = useState("group");
@@ -26,6 +29,7 @@ export default function NewChatScreen() {
   const [selectedFriends, setSelectedFriends] = useState([]);
   const [showFriendSelection, setShowFriendSelection] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleBack = () => {
     router.back();
@@ -37,13 +41,32 @@ export default function NewChatScreen() {
         Alert.alert("Error", "Please enter a group name");
         return;
       }
-      if (selectedFriends.length === 0) {
-        Alert.alert("Error", "Please select at least one friend for the group");
-        return;
+      try {
+        const token = await AsyncStorage.getItem("authToken");
+        const userId = await AsyncStorage.getItem("user_id");
+
+        // Include the current user in the room
+        const allUsers = [userId, ...selectedFriends];
+
+        const response = await createRoomApi(
+          token,
+          userId,
+          allUsers,
+          inputValue,
+        );
+
+        if (response && response.room_id) {
+          dispatch(getRooms());
+          Alert.alert("Success", "Group created successfully!");
+          // Optionally navigate to the new group chat
+          // router.push(`/room/${response.room_id}`);
+        } else {
+          Alert.alert("Error", "Failed to create group.");
+        }
+      } catch (error) {
+        console.error("Error creating group:", error);
+        Alert.alert("Error", "An error occurred while creating the group.");
       }
-      console.log("Create group:", inputValue);
-      console.log("Selected friends:", selectedFriends);
-      // Implement group creation logic here
     } else {
       try {
         const token = await AsyncStorage.getItem("authToken");
@@ -85,7 +108,6 @@ export default function NewChatScreen() {
   if (showFriendSelection) {
     return (
       <FriendSelectionScreen
-        friends={[]} // Pass your friends data here
         selectedFriends={selectedFriends}
         onSelect={toggleFriendSelection}
         onClose={() => setShowFriendSelection(false)}

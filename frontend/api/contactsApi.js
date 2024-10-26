@@ -9,7 +9,7 @@ export const fetchContactsApi = async () => {
 
     const body = { token, user_id };
 
-    const response = await fetch(`${API_URL}/user/fetch`, {
+    const response = await fetch(`${API_URL}/user/fetch_contact`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -18,6 +18,7 @@ export const fetchContactsApi = async () => {
     });
 
     const responseText = await response.text();
+    console.log("contacts" + responseText);
     let responseBody;
     try {
       responseBody = JSON.parse(responseText);
