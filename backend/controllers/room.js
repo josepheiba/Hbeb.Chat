@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const Room = require("../models/room");
+const Message = require("../models/message");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
@@ -179,7 +180,25 @@ module.exports.fetch_room_post = async (req, res) => {
       console.log("ok");
       console.log(rooms);
       if (rooms.length > 0) {
-        return res.status(200).json(rooms);
+        // Get last messages for each room
+        const roomsWithLastMessages = await Promise.all(
+          rooms.map(async (room) => {
+            const lastMessage = await Message.findOne({ room: room._id })
+              .sort({ timestamp: -1 })
+              .select("content sender timestamp")
+              .populate("sender", "email")
+              .lean();
+
+            const roomObject = room.toObject();
+            return {
+              ...roomObject,
+              lastMessage: lastMessage || null,
+            };
+          }),
+        );
+
+        console.log("Rooms with last messages:", roomsWithLastMessages);
+        return res.status(200).json(roomsWithLastMessages);
       }
     }
     if (req.body.users) {
@@ -192,12 +211,50 @@ module.exports.fetch_room_post = async (req, res) => {
         },
       });
       if (rooms.length > 0) {
-        return res.status(200).json(rooms);
+        // Get last messages for each room
+        const roomsWithLastMessages = await Promise.all(
+          rooms.map(async (room) => {
+            const lastMessage = await Message.findOne({ room: room._id })
+              .sort({ timestamp: -1 })
+              .select("content sender timestamp")
+              .populate("sender", "email")
+              .lean();
+
+            const roomObject = room.toObject();
+            return {
+              ...roomObject,
+              lastMessage: lastMessage || null,
+            };
+          }),
+        );
+
+        console.log("Rooms with last messages:", roomsWithLastMessages);
+        return res.status(200).json(roomsWithLastMessages);
       }
     }
     if (!req.body.room_ids && !req.body.users && res.locals.user_id) {
       const rooms = await Room.find({ users: user_id });
-      return res.status(200).json(rooms);
+      if (rooms.length > 0) {
+        // Get last messages for each room
+        const roomsWithLastMessages = await Promise.all(
+          rooms.map(async (room) => {
+            const lastMessage = await Message.findOne({ room: room._id })
+              .sort({ timestamp: -1 })
+              .select("content sender timestamp")
+              .populate("sender", "email")
+              .lean();
+
+            const roomObject = room.toObject();
+            return {
+              ...roomObject,
+              lastMessage: lastMessage || null,
+            };
+          }),
+        );
+
+        console.log("Rooms with last messages:", roomsWithLastMessages);
+        return res.status(200).json(roomsWithLastMessages);
+      }
     }
     if (rooms.length == 0) {
       throw { room_ids: "No room found" };
