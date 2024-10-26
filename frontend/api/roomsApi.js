@@ -1,17 +1,19 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Global from "../utils/globals";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "http://192.168.1.42:3000";
 
 export const getRoomsApi = async () => {
   try {
-    const token = await AsyncStorage.getItem("token");
+    const token = await AsyncStorage.getItem("authToken");
     const user_id = await AsyncStorage.getItem("user_id");
 
     const body = { token, user_id };
 
     console.log("Fetching messages from the server...");
 
-    const response = await fetch(`${API_URL}/rooms`, {
+    const response = await fetch(`${API_URL}/room/fetch`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
