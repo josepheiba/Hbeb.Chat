@@ -232,6 +232,16 @@ This document outlines the API endpoints and WebSocket functionality for the Hbe
   ]
   ```
 
+### 3. Delete Room
+  - **Endpoint:** `POST /room/delete`
+  - **Description:** Delete a chat room
+  - **Required Parameters:**
+    - `token` (string): JWT for authentication
+    - `user_id` (string): User's ID
+    - `room_id` (string): ID of the room to delete
+  - **Response:**
+    - Confirmation message
+
 ## WebSocket Events
 
 ### Connection
