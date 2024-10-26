@@ -84,7 +84,12 @@ function setupWebSocket(io) {
       // Update room's lastActivity
       await Room.findByIdAndUpdate(room_id, { lastActivity: new Date() });
 
-      console.log(`Received in room ${room_id}: ${content}`);
+      console.log(
+        `Received in room ${room_id}:`,
+        `\n  Content: ${content}`,
+        `\n  Sender ID: ${message.sender._id}`,
+        `\n  Sender Email: ${message.sender.email}`,
+      );
       io.to(room_id).emit("message", {
         _id: message._id,
         sender: message.sender,

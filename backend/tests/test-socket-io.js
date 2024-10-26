@@ -3,9 +3,9 @@ const readline = require("readline");
 
 // The JWT token provided
 const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MGIyYmQ2NzA2NWU3MWIzODA1MWU3ZSIsImlhdCI6MTcyOTYzNDQyMywiZXhwIjoxNzI5ODkzNjIzfQ.4ElpqdXCGuyV0REA4uUz6SFppMAgI1ThpBujfq8OH0g";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MGIyODFmOGIzYzBjMjViNjFmYjkzYSIsImlhdCI6MTcyOTk3NjkyMCwiZXhwIjoxNzMwMjM2MTIwfQ.5oS2fX_zpnGEpZUcmBeKf0JWGV7iPPbZMMnNMzsxGE4";
 // Room ID variable
-const roomId = "670c24a15da3df5f5ad3ce42";
+const roomId = "671d59a4139d42a3cc79bf02";
 
 // Connect to the server using the token in the `auth` option
 const socket = io("http://localhost:3000", {
