@@ -52,22 +52,12 @@ export default function Messages() {
 
   const handleDelete = async (id) => {
     try {
-      onPress: async () => {
-        try {
-          await deleteRoom(id);
-          // After successful deletion, refresh the rooms list
-          dispatch(getRooms());
-        } catch (error) {
-          Alert.alert(
-            "Error",
-            "Failed to delete conversation. Please try again.",
-          );
-          console.error("Error deleting room:", error);
-        }
-      };
+      await deleteRoom(id);
+      // After successful deletion, refresh the rooms list
+      dispatch(getRooms());
     } catch (error) {
-      Alert.alert("Error", "Something went wrong. Please try again.");
-      console.error("Error in handleDelete:", error);
+      Alert.alert("Error", "Failed to delete conversation. Please try again.");
+      console.error("Error deleting room:", error);
     }
   };
 
