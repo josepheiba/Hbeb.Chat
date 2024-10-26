@@ -46,3 +46,25 @@ export const acceptFriendRequestApi = async (token, userId, friendId) => {
     throw error;
   }
 };
+
+export const rejectFriendRequestApi = async (token, userId, friendId) => {
+  try {
+    const response = await fetch("http://localhost:3000/user/friend_reject", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        token,
+        user_id: userId,
+        friend_id: friendId,
+      }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error rejecting friend request:", error);
+    throw error;
+  }
+};
