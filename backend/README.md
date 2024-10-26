@@ -242,6 +242,19 @@ This document outlines the API endpoints and WebSocket functionality for the Hbe
   - **Response:**
     - Confirmation message
 
+    ### 4. Update Room
+    - **Endpoint:** `POST /room/update`
+    - **Description:** Update room information
+    - **Required Parameters:**
+      - `token` (string): JWT for authentication
+      - `user_id` (string): User's ID
+      - `room_id` (string): ID of the room to update
+    - **Optional Parameters:**
+      - `name` (string): New room name
+      - `users` (array): Updated array of user IDs in the room
+    - **Response:**
+      - Updated room object
+
 ## WebSocket Events
 
 ### Connection
