@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import {
   View,
   Text,
@@ -17,69 +17,137 @@ import { useRouter } from "expo-router";
 import { useSelector } from "react-redux";
 import socket from "../utils/socket";
 
+// Memoized Message Component
+const MessageItem = memo(({ message, isOwnMessage, user }) => {
+  return (
+    <View
+      style={[
+        styles.messageContainer,
+        isOwnMessage ? styles.ownMessage : styles.otherMessage,
+      ]}
+    >
+      {!isOwnMessage && (
+        <Text style={styles.username}>{message.sender.username}</Text>
+      )}
+      <Text style={styles.messageText}>{message.content}</Text>
+      <Text style={styles.timestamp}>
+        {new Date(message.timestamp).toLocaleTimeString()}
+      </Text>
+    </View>
+  );
+});
+
 const ChatRoom = ({ roomId, roomName }) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const flatListRef = useRef(null);
+  const shouldScrollToEnd = useRef(true);
   const router = useRouter();
 
   useEffect(() => {
-    socket.emit("join room", roomId);
-    socket.emit("get recent messages", roomId);
+    console.log("Joining room:", roomId);
+    socket.emit("join_room", roomId);
 
-    socket.on("recent messages", (recentMessages) => {
-      setMessages(recentMessages);
-    });
+    const handlePreviousMessages = ({ messages, hasMore }) => {
+      console.log("Received previous messages:", messages);
+      const uniqueMessages = messages.reduce((acc, current) => {
+        const x = acc.find((item) => item._id === current._id);
+        if (!x) {
+          return acc.concat([current]);
+        } else {
+          return acc;
+        }
+      }, []);
+      setMessages(uniqueMessages);
+      setHasMoreMessages(hasMore);
+      shouldScrollToEnd.current = true;
+    };
 
-    socket.on("new message", (message) => {
-      setMessages((prevMessages) => [...prevMessages, message]);
-    });
+    const handleNewMessage = (message) => {
+      console.log("Received new message:", message);
+      setMessages((prevMessages) => {
+        if (prevMessages.some((msg) => msg._id === message._id)) {
+          return prevMessages;
+        }
+        shouldScrollToEnd.current = true;
+        return [...prevMessages, message];
+      });
+    };
 
-    socket.on("error", (error) => {
-      console.error("Socket error:", error);
-    });
+    socket.on("previous_messages", handlePreviousMessages);
+    socket.on("message", handleNewMessage);
+    socket.on("error", (error) => console.error("Socket error:", error));
 
     return () => {
-      socket.off("new message");
+      console.log("Leaving room:", roomId);
+      socket.off("previous_messages", handlePreviousMessages);
+      socket.off("message", handleNewMessage);
       socket.off("error");
-      socket.emit("leave room", roomId);
+      socket.emit("leave_room", roomId);
     };
   }, [roomId]);
 
-  const sendMessage = () => {
+  const sendMessage = useCallback(() => {
     if (inputMessage.trim()) {
       const messageData = {
-        id: new Date().getTime().toString(),
-        roomId,
-        userId: user.id,
-        username: user.username,
-        text: inputMessage,
-        timestamp: new Date().toISOString(),
+        room_id: roomId,
+        content: inputMessage,
       };
-      socket.emit("send message", messageData);
+      console.log("Sending message:", messageData);
+      socket.emit("message", messageData);
       setInputMessage("");
-      setMessages((prevMessages) => [...prevMessages, messageData]);
     }
-  };
+  }, [inputMessage, roomId]);
 
-  const renderMessage = ({ item }) => {
-    const isOwnMessage = item.userId === user.id;
-    return (
-      <View
-        style={[
-          styles.messageContainer,
-          isOwnMessage ? styles.ownMessage : styles.otherMessage,
-        ]}
-      >
-        {!isOwnMessage && <Text style={styles.username}>{item.username}</Text>}
-        <Text style={styles.messageText}>{item.text}</Text>
-        <Text style={styles.timestamp}>
-          {new Date(item.timestamp).toLocaleTimeString()}
-        </Text>
-      </View>
-    );
-  };
+  const loadMoreMessages = useCallback(() => {
+    if (loadingMoreMessages || !hasMoreMessages) return;
+
+    setLoadingMoreMessages(true);
+    const lastMessageId = messages[0]?._id;
+
+    console.log("Loading more messages before:", lastMessageId);
+    socket.emit("load_more_messages", { room_id: roomId, lastMessageId });
+
+    const handleMoreMessages = ({ messages: newMessages, hasMore }) => {
+      console.log("Received more messages:", newMessages);
+      setMessages((prevMessages) => {
+        const combinedMessages = [...newMessages, ...prevMessages];
+        const uniqueMessages = combinedMessages.reduce((acc, current) => {
+          const x = acc.find((item) => item._id === current._id);
+          if (!x) {
+            return acc.concat([current]);
+          } else {
+            return acc;
+          }
+        }, []);
+        return uniqueMessages;
+      });
+      setHasMoreMessages(hasMore);
+      setLoadingMoreMessages(false);
+    };
+
+    socket.once("more_messages", handleMoreMessages);
+  }, [loadingMoreMessages, hasMoreMessages, messages, roomId]);
+
+  const renderMessage = useCallback(
+    ({ item }) => {
+      const isOwnMessage = item.sender._id === user.id;
+      return (
+        <MessageItem message={item} isOwnMessage={isOwnMessage} user={user} />
+      );
+    },
+    [user],
+  );
+
+  const handleContentSizeChange = useCallback(() => {
+    if (shouldScrollToEnd.current && flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+      shouldScrollToEnd.current = false;
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,12 +172,15 @@ const ChatRoom = ({ roomId, roomName }) => {
         <FlatList
           ref={flatListRef}
           data={messages}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id.toString()}
           renderItem={renderMessage}
-          onContentSizeChange={() =>
-            flatListRef.current.scrollToEnd({ animated: true })
-          }
+          onEndReachedThreshold={0.1}
+          onEndReached={loadMoreMessages}
+          onContentSizeChange={handleContentSizeChange}
           contentContainerStyle={styles.messageList}
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          windowSize={10}
         />
         <View style={styles.inputContainer}>
           <TextInput

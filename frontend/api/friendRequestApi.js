@@ -27,17 +27,20 @@ export const sendFriendRequestApi = async (token, userId, friendEmail) => {
 
 export const acceptFriendRequestApi = async (token, userId, friendId) => {
   try {
-    const response = await fetch("http://localhost:3000/user/friend_accept", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      "http://192.168.1.42:3000/user/friend_accept",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          user_id: userId,
+          friend_id: friendId,
+        }),
       },
-      body: JSON.stringify({
-        token,
-        user_id: userId,
-        friend_id: friendId,
-      }),
-    });
+    );
 
     const data = await response.json();
     return data;

@@ -1,23 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   FlatList,
   Platform,
-  Animated,
-  PanResponder,
-  Pressable,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Ionicons, Feather } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AntDesign } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "expo-router";
+import { fetchContacts } from "../../redux/thunks/contactsThunks";
 
 const ios = Platform.OS === "ios";
 
@@ -25,6 +21,11 @@ export default function Contacts() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const dispatch = useDispatch();
+  const { contacts, loading, error } = useSelector((state) => state.contacts);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   const handleAddContact = () => {
     router.push("/new-chat");
@@ -33,6 +34,16 @@ export default function Contacts() {
   const handleSearch = () => {
     // Implement search functionality
   };
+
+  const renderContactItem = ({ item }) => (
+    <View style={styles.contactItem}>
+      <View style={styles.avatar} />
+      <View style={styles.contactInfo}>
+        <Text style={styles.contactName}>{item.name}</Text>
+        <Text style={styles.contactStatus}>{item.status}</Text>
+      </View>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -49,13 +60,25 @@ export default function Contacts() {
         </View>
 
         <View style={styles.contactsContainer}>
-          {/* You can add your contacts list here */}
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>No contacts yet</Text>
-            <Text style={styles.emptyStateSubtext}>
-              Tap + to add new contacts
-            </Text>
-          </View>
+          {loading ? (
+            <Text>Loading...</Text>
+          ) : error ? (
+            <Text>Error: {error}</Text>
+          ) : contacts.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>No contacts yet</Text>
+              <Text style={styles.emptyStateSubtext}>
+                Tap + to add new contacts
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={contacts}
+              renderItem={renderContactItem}
+              keyExtractor={(item) => item.id.toString()}
+              style={styles.contactsList}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -92,13 +115,13 @@ const styles = StyleSheet.create({
   },
   contactsContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "white",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
   emptyState: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
   },
   emptyStateText: {
@@ -108,10 +131,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   emptyStateSubtext: {
-    color: "rgba(255, 255, 255, 0.6)",
+    color: "rgba(0, 0, 0, 0.6)",
     fontSize: 14,
   },
-  // Styles for when you add the contacts list
   contactsList: {
     flex: 1,
     width: "100%",
@@ -121,26 +143,26 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
   },
   avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
     marginRight: 12,
   },
   contactInfo: {
     flex: 1,
   },
   contactName: {
-    color: "white",
+    color: "black",
     fontSize: 16,
     fontWeight: "500",
     marginBottom: 4,
   },
   contactStatus: {
-    color: "rgba(255, 255, 255, 0.6)",
+    color: "rgba(0, 0, 0, 0.6)",
     fontSize: 14,
   },
 });

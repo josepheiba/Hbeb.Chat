@@ -1,6 +1,6 @@
 export const fetchUserApi = async (token, userId) => {
   try {
-    const response = await fetch("http://localhost:3000/user/fetch", {
+    const response = await fetch("http://192.168.1.42:3000/user/fetch", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
