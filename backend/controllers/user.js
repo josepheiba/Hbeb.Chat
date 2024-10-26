@@ -26,6 +26,22 @@ module.exports.update_user_post = async (req, res) => {
   }
 };
 
+module.exports.fetch_contact_post = async (req, res) => {
+  const { user_id } = res.locals;
+  try {
+    const friends = await User.findById(user_id).select("friends");
+    console.log(friends);
+    const fetchedFriends = await User.find({
+      _id: { $in: friends.friends },
+    }).select("-password");
+    res.status(200).json(fetchedFriends);
+  } catch (error) {
+    res.status
+      .status(400)
+      .json({ message: "Error fetching friends", error: error });
+  }
+};
+
 module.exports.fetch_user_post = async (req, res) => {
   const { users, user, email, phone, room } = req.body;
   const { user_id } = res.locals;
