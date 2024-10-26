@@ -27,9 +27,20 @@ module.exports.update_user_post = async (req, res) => {
 };
 
 module.exports.fetch_user_post = async (req, res) => {
-  const { user, email, phone, room } = req.body;
+  const { users, user, email, phone, room } = req.body;
   const { user_id } = res.locals;
-  if (user) {
+  if (users) {
+    try {
+      const fetchedUsers = await User.find({ _id: { $in: users } }).select(
+        "-password",
+      );
+      res.status(200).json(fetchedUsers);
+    } catch (error) {
+      res.status
+        .status(400)
+        .json({ message: "Error fetching users", error: error });
+    }
+  } else if (user) {
     try {
       const fetchedUser = await User.findById(user).select("-password");
       console.log(fetchedUser);
