@@ -199,6 +199,38 @@ This document outlines the API endpoints and WebSocket functionality for the Hbe
   }
   ```
 - **Response:** Array of room objects with last messages
+  ```json
+  [
+	{
+		"_id": "670c24a15da3df5f5ad3ce42",
+		"users": [
+			"670b2bd67065e71b38051e7e",
+			"67112971b6575baeacbbdf67"
+		],
+		"lastActivity": "2024-10-25T17:57:21.080Z",
+		"__v": 1,
+		"lastMessage": {
+			"_id": "671bdc018c2c043fa37dca0b",
+			"content": "6:57",
+			"sender": {
+				"_id": "670b2bd67065e71b38051e7e",
+				"email": "apolo5@mail.com"
+			},
+			"timestamp": "2024-10-25T17:57:21.065Z"
+		}
+	},
+	{
+		"_id": "671c17eba229e9547877f560",
+		"name": "CoCoA",
+		"users": [
+			"670b2bd67065e71b38051e7e"
+		],
+		"lastActivity": "2024-10-25T22:12:59.740Z",
+		"__v": 0,
+		"lastMessage": null
+	}
+  ]
+  ```
 
 ## WebSocket Events
 
