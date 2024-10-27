@@ -32,6 +32,8 @@ const stories = [
   { id: "5", name: "David", image: "https://via.placeholder.com/50" },
 ];
 
+import socket from "../../../utils/socket";
+
 const ios = Platform.OS === "ios";
 
 export default function Messages() {
@@ -40,7 +42,18 @@ export default function Messages() {
   const router = useRouter();
 
   useEffect(() => {
+    // Connect to socket when component mounts
+    socket.connect();
+    console.log("Socket connected");
+
+    // Get rooms after socket connection
     dispatch(getRooms());
+
+    // Cleanup: disconnect socket when component unmounts
+    return () => {
+      socket.disconnect();
+      console.log("Socket disconnected");
+    };
   }, [dispatch]);
 
   const conversationList = rooms.map((room) => ({

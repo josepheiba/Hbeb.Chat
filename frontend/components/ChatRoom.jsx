@@ -134,7 +134,8 @@ const ChatRoom = ({ roomId, roomName }) => {
 
   const renderMessage = useCallback(
     ({ item }) => {
-      const isOwnMessage = item.sender._id === user.id;
+      // The issue is here. We need to compare with user_id from auth state
+      const isOwnMessage = item.sender._id === user.user_id; // Change from user.id to user.user_id
       return (
         <MessageItem message={item} isOwnMessage={isOwnMessage} user={user} />
       );

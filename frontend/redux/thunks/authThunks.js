@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { loginApi, registerApi } from "../../api/authApi"; // Assuming you have an API file
+import socket from "../../utils/socket";
 
 export const loginUser = createAsyncThunk(
   "auth/login",
@@ -11,7 +12,7 @@ export const loginUser = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const checkAuthStatus = createAsyncThunk(
@@ -32,22 +33,30 @@ export const checkAuthStatus = createAsyncThunk(
       await AsyncStorage.removeItem("user_id");
       return rejectWithValue(error.message || "Authentication failed");
     }
-  }
+  },
 );
 
 export const logout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
+      // Disconnect socket before removing credentials
+      if (socket.connected) {
+        socket.disconnect();
+        console.log("Socket disconnected during logout");
+      }
+
+      // Remove stored credentials
       await AsyncStorage.removeItem("authToken");
       await AsyncStorage.removeItem("user_id");
-      console.log("Token removed");
-      return true; // Indicate successful logout
+      console.log("Credentials removed");
+
+      return true;
     } catch (error) {
       console.error("Error during logout:", error);
       return rejectWithValue("Failed to logout");
     }
-  }
+  },
 );
 
 export const registerUser = createAsyncThunk(
@@ -60,5 +69,5 @@ export const registerUser = createAsyncThunk(
       console.log("error at registerUser thunk");
       return rejectWithValue(error.response.data);
     }
-  }
+  },
 );
