@@ -257,7 +257,7 @@ module.exports.fetch_room_post = async (req, res) => {
       }
     }
     if (!rooms || rooms.length == 0) {
-      throw { room_ids: "No room found" };
+      throw { error: "No room found" };
     }
   } catch (error) {
     console.log(error);
