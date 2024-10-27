@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Global from "../utils/globals";
 
-const API_URL = "http://192.168.1.42:3000";
+const API_URL = Global.API_URL;
 
 export const fetchContactsApi = async () => {
   try {

@@ -1,11 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Global from "../utils/globals";
+
+const API_URL = Global.API_URL;
 
 export const deleteRoom = async (id) => {
   try {
     const token = await AsyncStorage.getItem("authToken");
     const userId = await AsyncStorage.getItem("user_id");
 
-    const response = await fetch("http://192.168.1.42:3000/room/delete", {
+    const response = await fetch(`${API_URL}/room/delete`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

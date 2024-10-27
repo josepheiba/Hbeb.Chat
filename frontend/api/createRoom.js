@@ -1,6 +1,10 @@
+import Global from "../utils/globals";
+
+const API_URL = Global.API_URL;
+
 export const createRoomApi = async (token, userId, users, inputValue) => {
   try {
-    const response = await fetch("http://192.168.1.42:3000/room/create", {
+    const response = await fetch(`${API_URL}/room/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
