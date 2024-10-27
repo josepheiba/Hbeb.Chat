@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   StatusBar,
   Platform,
+  Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,22 +20,42 @@ import {
   acceptFriendRequestApi,
   rejectFriendRequestApi,
 } from "../../../api/friendRequestApi";
+import { fetchFriendDetailsApi } from "../../../api/contactsApi";
 
 const Notification = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { userData, loading, error } = useSelector((state) => state.user);
+  const [requestDetails, setRequestDetails] = useState({});
 
   useEffect(() => {
     dispatch(fetchUserData());
   }, [dispatch]);
+
+  useEffect(() => {
+    const fetchRequestDetails = async () => {
+      if (userData?.friendRequests?.length > 0) {
+        const details = {};
+        for (const requestId of userData.friendRequests) {
+          try {
+            const userDetails = await fetchFriendDetailsApi(requestId);
+            details[requestId] = userDetails;
+          } catch (error) {
+            console.error("Error fetching user details:", error);
+          }
+        }
+        setRequestDetails(details);
+      }
+    };
+
+    fetchRequestDetails();
+  }, [userData?.friendRequests]);
 
   const handleBack = () => {
     router.back();
   };
 
   const handleAcceptRequest = async (friendId) => {
-    console.log("Accept friend request:", friendId);
     try {
       const token = await AsyncStorage.getItem("authToken");
       const userId = await AsyncStorage.getItem("user_id");
@@ -46,7 +67,6 @@ const Notification = () => {
   };
 
   const handleDeclineRequest = async (friendId) => {
-    console.log("Decline friend request:", friendId);
     try {
       const token = await AsyncStorage.getItem("authToken");
       const userId = await AsyncStorage.getItem("user_id");
@@ -73,30 +93,45 @@ const Notification = () => {
     );
   }
 
-  const renderFriendRequest = ({ item }) => (
-    <View style={styles.requestItem}>
-      <View style={styles.requestInfo}>
-        <View style={styles.avatarContainer}>
-          <Ionicons name="person" size={24} color="#666" />
+  const renderFriendRequest = ({ item }) => {
+    const userDetails = requestDetails[item] || {};
+    const defaultImage =
+      "https://api.dicebear.com/7.x/avataaars/png?seed=" + item;
+    console.log(defaultImage);
+
+    return (
+      <View style={styles.requestItem}>
+        <View style={styles.requestInfo}>
+          <Image
+            source={{ uri: userDetails.profilePicture || defaultImage }}
+            style={styles.avatar}
+          />
+          <View style={styles.userDetails}>
+            <Text style={styles.emailText}>
+              {userDetails.email || "Loading..."}
+            </Text>
+            {userDetails.phone && (
+              <Text style={styles.phoneText}>{userDetails.phone}</Text>
+            )}
+          </View>
         </View>
-        <Text style={styles.requestText}>Friend request from user {item}</Text>
+        <View style={styles.actionButtons}>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.acceptButton]}
+            onPress={() => handleAcceptRequest(item)}
+          >
+            <Text style={styles.buttonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.actionButton, styles.declineButton]}
+            onPress={() => handleDeclineRequest(item)}
+          >
+            <Text style={[styles.buttonText, styles.declineText]}>Decline</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.actionButtons}>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.acceptButton]}
-          onPress={() => handleAcceptRequest(item)}
-        >
-          <Text style={styles.buttonText}>Accept</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.declineButton]}
-          onPress={() => handleDeclineRequest(item)}
-        >
-          <Text style={[styles.buttonText, styles.declineText]}>Decline</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -164,18 +199,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
   },
-  avatarContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#f0f0f0",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10,
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
   },
-  requestText: {
+  userDetails: {
     flex: 1,
+  },
+  emailText: {
     fontSize: 16,
+    fontWeight: "500",
+    color: "#000",
+    marginBottom: 4,
+  },
+  phoneText: {
+    fontSize: 14,
+    color: "#666",
   },
   actionButtons: {
     flexDirection: "row",
