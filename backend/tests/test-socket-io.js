@@ -5,7 +5,7 @@ const readline = require("readline");
 const token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MTEyOTcxYjY1NzViYWVhY2JiZGY2NyIsImlhdCI6MTcyOTk3MDg4NiwiZXhwIjoxNzMwMjMwMDg2fQ.rrgMMgEL7TvxmRZFnmIG24DtkMSztjaLyG14E7wp8wk";
 // Room ID variable
-const roomId = "670c24a15da3df5f5ad3ce42";
+const roomId = "671d59a4139d42a3cc79bf02";
 
 // Connect to the server using the token in the `auth` option
 const socket = io("http://localhost:3000", {

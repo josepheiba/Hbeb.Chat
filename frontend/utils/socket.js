@@ -10,4 +10,17 @@ const socket = io(Global.API_URL, {
   },
 });
 
+// Add event listeners for connection status
+socket.on("connect", () => {
+  console.log("Socket connected successfully");
+});
+
+socket.on("connect_error", (error) => {
+  console.error("Socket connection error:", error);
+});
+
+socket.on("disconnect", () => {
+  console.log("Socket disconnected");
+});
+
 export default socket;
