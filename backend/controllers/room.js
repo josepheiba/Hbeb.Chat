@@ -256,7 +256,7 @@ module.exports.fetch_room_post = async (req, res) => {
         return res.status(200).json(roomsWithLastMessages);
       }
     }
-    if (rooms.length == 0) {
+    if (!rooms || rooms.length == 0) {
       throw { room_ids: "No room found" };
     }
   } catch (error) {
