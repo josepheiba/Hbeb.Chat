@@ -71,7 +71,7 @@ const ConversationItem = ({ conversation, onDelete, onPress }) => {
         <View style={styles.conversationDetails}>
           <Text style={styles.conversationName}>{conversation.name}</Text>
           <Text style={styles.conversationLastMessage}>
-            {conversation.lastMessage}
+            {conversation.lastMessage?.content || ""}
           </Text>
         </View>
         <Text style={styles.conversationTime}>{conversation.time}</Text>
