@@ -1,6 +1,8 @@
+import Global from "../utils/globals";
+
 export const fetchUserApi = async (token, userId) => {
   try {
-    const response = await fetch("http://localhost:3000/user/fetch", {
+    const response = await fetch(`${Global.API_URL}/user/fetch`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
