@@ -44,6 +44,12 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+  profilePicture: {
+    type: String,
+    default: function () {
+      return `https://api.dicebear.com/7.x/avataaars/svg?seed=${this._id}`;
+    },
+  },
 });
 
 userSchema.post("save", function (error, doc, next) {

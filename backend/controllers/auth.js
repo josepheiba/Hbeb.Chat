@@ -18,6 +18,11 @@ module.exports.signin_post = async (req, res) => {
     res.status(200).json({
       user_id: user._id,
       token: token,
+      profilePicture: user.profilePicture,
+      email: user.email,
+      phone: user.phone,
+      username: user.username,
+      biography: user.biography,
     });
   } catch (error) {
     res.status(400).send(error);
