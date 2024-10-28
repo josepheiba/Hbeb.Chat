@@ -15,7 +15,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { selectUser } from "../../redux/selectors/authSelectors";
 import { logout } from "../../redux/slices/authSlice";
 import ChangeProfileImageModal from "../../components/settings/ChangeProfileImageModal";
 
@@ -40,10 +39,6 @@ export default function Settings() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [isModalVisible, setModalVisible] = useState(false);
-
-  // useEffect(() => {
-  //   console.log("User object:", user); // Debugging statement
-  // }, [user]);
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
