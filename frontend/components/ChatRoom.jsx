@@ -42,12 +42,13 @@ const ChatRoom = ({ roomId, roomName }) => {
   const [inputMessage, setInputMessage] = useState("");
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
-  const user = useSelector((state) => state.auth.user);
+  const { user } = useSelector((state) => state.auth);
   const flatListRef = useRef(null);
   const shouldScrollToEnd = useRef(true);
   const router = useRouter();
 
   useEffect(() => {
+    console.log("___________", user);
     console.log("Joining room:", roomId);
     socket.emit("join_room", roomId);
 
@@ -89,6 +90,14 @@ const ChatRoom = ({ roomId, roomName }) => {
       socket.emit("leave_room", roomId);
     };
   }, [roomId]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: false });
+      }, 100);
+    }
+  }, [messages.length]);
 
   const sendMessage = useCallback(() => {
     if (inputMessage.trim()) {
@@ -168,7 +177,7 @@ const ChatRoom = ({ roomId, roomName }) => {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.chatContainer}
-        keyboardVerticalOffset={100}
+        keyboardVerticalOffset={0}
       >
         <FlatList
           ref={flatListRef}
