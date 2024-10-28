@@ -11,7 +11,7 @@ export const loginApi = async ({ email, password, token, user_id }) => {
     let isEmailPasswordLogin = false;
 
     if (token && user_id) {
-      console.log("Verifying token with the backend...");
+      // console.log("Verifying token with the backend...");
       url = `${API_URL}/auth/token`;
       body = { token, user_id };
     } else {
@@ -19,8 +19,8 @@ export const loginApi = async ({ email, password, token, user_id }) => {
       isEmailPasswordLogin = true;
     }
 
-    console.log(`Attempting to connect to ${url}`);
-    console.log("Request body:", JSON.stringify(body));
+    // console.log(`Attempting to connect to ${url}`);
+    // console.log("Request body:", JSON.stringify(body));
 
     const response = await fetch(url, {
       method: "POST",
@@ -30,20 +30,20 @@ export const loginApi = async ({ email, password, token, user_id }) => {
       body: JSON.stringify(body),
     });
 
-    console.log("Login successful, received data:", responseBody);
+    // console.log("Login successful, received data:", responseBody);
 
-    console.log("Response status:", response.status);
+    // console.log("Response status:", response.status);
 
     // Read the response as text first
     const responseText = await response.text();
-    console.log("Raw response:", responseText);
+    // console.log("Raw response:", responseText);
 
     let responseBody;
     try {
       responseBody = JSON.parse(responseText);
-      console.log("Parsed response body:", responseBody);
+      // console.log("Parsed response body:", responseBody);
     } catch (e) {
-      console.log("Failed to parse response as JSON:", e);
+      // console.log("Failed to parse response as JSON:", e);
       throw new Error("Invalid JSON response from server");
     }
 
@@ -66,21 +66,21 @@ export const loginApi = async ({ email, password, token, user_id }) => {
       } else {
         errorMessage = responseText || `HTTP error! status: ${response.status}`;
       }
-      console.log("Error message:", errorMessage);
+      // console.log("Error message:", errorMessage);
       throw new Error(errorMessage);
     }
 
     if (isEmailPasswordLogin) {
       if (responseBody && responseBody.token) {
-        console.log("Storing the token..." + responseBody.token);
+        // console.log("Storing the token..." + responseBody.token);
         await AsyncStorage.setItem("authToken", responseBody.token);
       }
 
       if (responseBody && responseBody.user_id) {
-        console.log("Storing the user_id..." + responseBody.user_id);
+        // console.log("Storing the user_id..." + responseBody.user_id);
         await AsyncStorage.setItem("user_id", responseBody.user_id.toString());
       } else {
-        console.warn("user_id not found in the response");
+        // console.warn("user_id not found in the response");
       }
     }
 
@@ -108,15 +108,15 @@ export const registerApi = async (userData) => {
 
     // Store the token if it's returned upon registration
     if (data.token && data.user_id) {
-      console.log("Storing the token..." + data.token);
+      // console.log("Storing the token..." + data.token);
       await AsyncStorage.setItem("authToken", data.token);
       await AsyncStorage.setItem("user_id", data.user_id);
     }
 
     return data;
   } catch (error) {
-    console.log("error at registerUser authapi.js");
-    console.error("Registration error:", error);
+    // console.log("error at registerUser authapi.js");
+    // console.error("Registration error:", error);
     throw error;
   }
 };

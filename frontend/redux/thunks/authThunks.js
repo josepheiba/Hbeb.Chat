@@ -21,7 +21,7 @@ export const checkAuthStatus = createAsyncThunk(
     try {
       const token = await AsyncStorage.getItem("authToken");
       const user_id = await AsyncStorage.getItem("user_id");
-      console.log("Token and user_id", token, user_id);
+      // console.log("Token and user_id", token, user_id);
       if (token && user_id) {
         // Validate the token with your backend
         const response = await loginApi({ token, user_id });
