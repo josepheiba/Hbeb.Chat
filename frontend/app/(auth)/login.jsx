@@ -62,7 +62,7 @@ export default function Login() {
       } else {
         console.log(
           "Login failed:",
-          resultAction.payload || resultAction.error.message
+          resultAction.payload || resultAction.error.message,
         );
       }
     } catch (error) {

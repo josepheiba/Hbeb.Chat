@@ -21,12 +21,12 @@ export const getRoomsApi = async () => {
     });
 
     const responseText = await response.text();
-    console.log("Raw response:", responseText);
+    // console.log("Raw response:", responseText);
 
     let responseBody;
     try {
       responseBody = JSON.parse(responseText);
-      console.log("Parsed response body:", responseBody);
+      // console.log("Parsed response body:", responseBody);
     } catch (e) {
       console.log("Failed to parse response as JSON:", e);
       throw new Error("Invalid JSON response from server");

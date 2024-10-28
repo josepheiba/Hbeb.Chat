@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,10 @@ import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../redux/selectors/authSelectors";
 import { logout } from "../../redux/slices/authSlice";
+import ChangeProfileImageModal from "../../components/settings/ChangeProfileImageModal";
 
 const ios = Platform.OS === "ios";
 
@@ -32,9 +35,15 @@ const SettingItem = ({ icon, title, onPress, showBorder = true }) => (
 );
 
 export default function Settings() {
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [isModalVisible, setModalVisible] = useState(false);
+
+  // useEffect(() => {
+  //   console.log("User object:", user); // Debugging statement
+  // }, [user]);
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -60,6 +69,10 @@ export default function Settings() {
     router.push(route);
   };
 
+  const handleProfileImageClick = () => {
+    setModalVisible(true); // Show the modal when profile image is clicked
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
@@ -77,11 +90,18 @@ export default function Settings() {
 
         <ScrollView style={styles.settingsContainer}>
           <View style={styles.profileSection}>
-            <View style={styles.profileImage}>
+            <TouchableOpacity
+              style={styles.profileImage}
+              onPress={handleProfileImageClick} // Handle profile image click
+            >
               <Feather name="user" size={40} color="#666" />
+            </TouchableOpacity>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>John Doe</Text>
+              <Text style={styles.profileEmail}>
+                {user?.email || "Email not available"}
+              </Text>
             </View>
-            <Text style={styles.profileName}>John Doe</Text>
-            <Text style={styles.profileEmail}>john.doe@example.com</Text>
           </View>
 
           <View style={styles.settingsGroup}>
@@ -113,6 +133,10 @@ export default function Settings() {
           </TouchableOpacity>
         </ScrollView>
       </View>
+      <ChangeProfileImageModal
+        isVisible={isModalVisible}
+        onClose={() => setModalVisible(false)} // Close the modal
+      />
     </SafeAreaView>
   );
 }
@@ -152,6 +176,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
   },
   profileSection: {
+    flexDirection: "row",
     alignItems: "center",
     padding: 20,
     borderBottomWidth: 1,
@@ -164,7 +189,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
+    marginRight: 16,
+  },
+  profileInfo: {
+    flex: 1,
   },
   profileName: {
     fontSize: 20,
