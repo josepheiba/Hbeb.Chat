@@ -65,6 +65,7 @@ export default function Messages() {
   const conversationList = rooms.map((room) => ({
     id: room._id,
     name: room.name,
+    users: room.users,
     lastMessage: room.lastMessage || "",
     time: room.lastMessage?.timestamp || "",
   }));
@@ -83,7 +84,11 @@ export default function Messages() {
   const handleConversationPress = (conversation) => {
     router.push({
       pathname: "/room/[id]",
-      params: { id: conversation.id, name: conversation.name },
+      params: {
+        id: conversation.id,
+        name: conversation.name,
+        users: conversation.users,
+      },
     });
   };
 
