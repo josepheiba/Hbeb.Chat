@@ -105,15 +105,16 @@ export const loginApi = async ({ email, password, token, user_id }) => {
 
 export const registerApi = async (userData) => {
   try {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${API_URL}/auth/signup?=`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: userData,
     });
 
     if (!response.ok) {
+      console.log("Registration failed with status:", response);
       throw new Error("Registration failed");
     }
 
@@ -129,7 +130,7 @@ export const registerApi = async (userData) => {
     return data;
   } catch (error) {
     // console.log("error at registerUser authapi.js");
-    // console.error("Registration error:", error);
+    console.error("Registration error:", error);
     throw error;
   }
 };

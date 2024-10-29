@@ -14,7 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-// import { registerUser } from "../../redux/slices/authSlice";
+import { registerUser } from "../../redux/thunks/authThunks";
 import LabeledInput from "../../components/common/LabledInput";
 import CustomButton from "../../components/common/CustomButton";
 

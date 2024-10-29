@@ -139,7 +139,9 @@ export default function Messages() {
                   conversation={item}
                   onDelete={handleDelete}
                   onPress={() => handleConversationPress(item)}
-                  profilePicture={userData.profilePicture} // Pass the profilePicture here
+                  profilePicture={
+                    userData?.profilePicture || "https://via.placeholder.com/50"
+                  } // Pass the profilePicture here with default
                 />
               )}
               keyExtractor={(item) => item.id}
