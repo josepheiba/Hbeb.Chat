@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   SafeAreaView,
   FlatList,
   Platform,
@@ -17,6 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getRooms } from "../../../redux/thunks/roomsThunks";
 import { fetchUserData } from "../../../redux/thunks/userThunks";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
@@ -42,8 +42,17 @@ export default function Messages() {
   const { rooms, loading, error } = useSelector((state) => state.rooms);
   const { userData } = useSelector((state) => state.user);
   const router = useRouter();
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
+    // Fetch the logged-in user's ID from AsyncStorage
+    const fetchUserId = async () => {
+      const id = await AsyncStorage.getItem("user_id");
+      setUserId(id);
+    };
+
+    fetchUserId();
+
     // Connect to socket when component mounts
     socket.connect();
     console.log("Socket connected");
@@ -95,7 +104,6 @@ export default function Messages() {
   return (
     <ProtectedRoute>
       <SafeAreaView style={styles.safeArea}>
-        {/* <View style={[styles.mainView, { paddingTop: ios ? top : top + 5 }]}> */}
         <StatusBar style="light" />
         <View style={styles.container}>
           <View style={styles.header}>
@@ -134,23 +142,26 @@ export default function Messages() {
             <View style={styles.conversationsHeader} />
             <FlatList
               data={conversationList.slice().reverse()}
-              renderItem={({ item }) => (
-                <ConversationItem
-                  conversation={item}
-                  onDelete={handleDelete}
-                  onPress={() => handleConversationPress(item)}
-                  profilePicture={
-                    userData?.profilePicture || "https://via.placeholder.com/50"
-                  } // Pass the profilePicture here with default
-                />
-              )}
+              renderItem={({ item }) => {
+                const otherUserId = item.users?.find((id) => id !== userId);
+                const profilePictureUrl = otherUserId
+                  ? `https://api.dicebear.com/7.x/avataaars/png?seed=${otherUserId}`
+                  : "https://via.placeholder.com/50";
+
+                return (
+                  <ConversationItem
+                    conversation={item}
+                    onDelete={handleDelete}
+                    onPress={() => handleConversationPress(item)}
+                    profilePicture={profilePictureUrl}
+                  />
+                );
+              }}
               keyExtractor={(item) => item.id}
-              // contentContainerStyle={styles.conversationsContent}
             />
           </View>
         </View>
       </SafeAreaView>
-      {/* </View> */}
     </ProtectedRoute>
   );
 }
