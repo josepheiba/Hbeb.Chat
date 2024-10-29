@@ -37,7 +37,13 @@ const MessageItem = memo(({ message, isOwnMessage, user }) => {
   );
 });
 
-const ChatRoom = ({ roomId, roomName }) => {
+const ChatRoom = ({
+  roomId,
+  roomName,
+  profilePicture,
+  friendUsername,
+  friendEmail,
+}) => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
@@ -48,7 +54,6 @@ const ChatRoom = ({ roomId, roomName }) => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("___________", user);
     console.log("Joining room:", roomId);
     socket.emit("join_room", roomId);
 
@@ -98,6 +103,13 @@ const ChatRoom = ({ roomId, roomName }) => {
       }, 100);
     }
   }, [messages.length]);
+
+  useEffect(() => {
+    // Scroll to the bottom when the component mounts
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: false });
+    }, 100);
+  }, []);
 
   const sendMessage = useCallback(() => {
     if (inputMessage.trim()) {
@@ -166,12 +178,12 @@ const ChatRoom = ({ roomId, roomName }) => {
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.roomName}>{roomName}</Text>
+        <View>
+          <Text style={styles.roomName}>{roomName}</Text>
+          <Text style={styles.roomEmail}>{friendEmail}</Text>
+        </View>
         <TouchableOpacity onPress={() => console.log("Profile")}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/40" }}
-            style={styles.avatarImage}
-          />
+          <Image source={{ uri: profilePicture }} style={styles.avatarImage} />
         </TouchableOpacity>
       </View>
       <KeyboardAvoidingView
@@ -226,6 +238,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
+  },
+  roomEmail: {
+    color: "white",
   },
   avatarImage: {
     width: 40,
