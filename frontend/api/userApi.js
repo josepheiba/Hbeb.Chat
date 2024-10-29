@@ -10,7 +10,7 @@ export const fetchUserApi = async (token, userId, frienId = null) => {
       body: JSON.stringify({
         token,
         user_id: userId,
-        frienId: frienId,
+        user: frienId,
       }),
     });
 
