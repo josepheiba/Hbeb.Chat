@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const fetchUserData = createAsyncThunk(
   "user/fetchData",
-  async (_, { rejectWithValue }) => {
+  async (friendId = null, { rejectWithValue }) => {
     try {
       const token = await AsyncStorage.getItem("authToken");
       const userId = await AsyncStorage.getItem("user_id");
@@ -13,7 +13,7 @@ export const fetchUserData = createAsyncThunk(
         throw new Error("No authentication credentials");
       }
 
-      const response = await fetchUserApi(token, userId);
+      const response = await fetchUserApi(token, userId, friendId);
       return response;
     } catch (error) {
       return rejectWithValue(error.message);

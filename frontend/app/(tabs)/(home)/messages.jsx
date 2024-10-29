@@ -18,6 +18,7 @@ import { Ionicons, Feather } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { getRooms } from "../../../redux/thunks/roomsThunks";
+import { fetchUserData } from "../../../redux/thunks/userThunks";
 import ProtectedRoute from "../../../components/common/ProtectedRoute";
 import ConversationItem from "../../../components/messages/ConversationItem";
 import StoryItem from "../../../components/messages/StoryItem";
@@ -39,6 +40,7 @@ const ios = Platform.OS === "ios";
 export default function Messages() {
   const dispatch = useDispatch();
   const { rooms, loading, error } = useSelector((state) => state.rooms);
+  const { userData } = useSelector((state) => state.user);
   const router = useRouter();
 
   useEffect(() => {
@@ -54,6 +56,10 @@ export default function Messages() {
       socket.disconnect();
       console.log("Socket disconnected");
     };
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchUserData());
   }, [dispatch]);
 
   const conversationList = rooms.map((room) => ({
@@ -128,6 +134,7 @@ export default function Messages() {
                   conversation={item}
                   onDelete={handleDelete}
                   onPress={() => handleConversationPress(item)}
+                  profilePicture={userData.profilePicture} // Pass the profilePicture here
                 />
               )}
               keyExtractor={(item) => item.id}

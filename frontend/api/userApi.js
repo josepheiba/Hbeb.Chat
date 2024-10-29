@@ -1,6 +1,6 @@
 import Global from "../utils/globals";
 
-export const fetchUserApi = async (token, userId) => {
+export const fetchUserApi = async (token, userId, frienId = null) => {
   try {
     const response = await fetch(`${Global.API_URL}/user/fetch`, {
       method: "POST",
@@ -10,6 +10,7 @@ export const fetchUserApi = async (token, userId) => {
       body: JSON.stringify({
         token,
         user_id: userId,
+        frienId: frienId,
       }),
     });
 

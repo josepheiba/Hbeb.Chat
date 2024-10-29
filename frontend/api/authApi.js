@@ -79,8 +79,21 @@ export const loginApi = async ({ email, password, token, user_id }) => {
       if (responseBody && responseBody.user_id) {
         // console.log("Storing the user_id..." + responseBody.user_id);
         await AsyncStorage.setItem("user_id", responseBody.user_id.toString());
-      } else {
-        // console.warn("user_id not found in the response");
+      }
+      if (responseBody && responseBody.profilePicture) {
+        // console.log("Storing the profilePicture..." + responseBody.profilePicture);
+        await AsyncStorage.setItem(
+          "user_profilePicture",
+          responseBody.profilePicture,
+        );
+      }
+      if (responseBody && responseBody.email) {
+        // console.log("Storing the email..." + responseBody.email);
+        await AsyncStorage.setItem("user_email", responseBody.email);
+      }
+      if (responseBody && responseBody.name) {
+        // console.log("Storing the name..." + responseBody.name);
+        await AsyncStorage.setItem("user_name", responseBody.name);
       }
     }
 

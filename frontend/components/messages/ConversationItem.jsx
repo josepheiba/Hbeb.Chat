@@ -10,7 +10,12 @@ import {
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 
-const ConversationItem = ({ conversation, onDelete, onPress }) => {
+const ConversationItem = ({
+  conversation,
+  onDelete,
+  onPress,
+  profilePicture,
+}) => {
   const pan = useRef(new Animated.ValueXY()).current;
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -65,7 +70,7 @@ const ConversationItem = ({ conversation, onDelete, onPress }) => {
         activeOpacity={0.7}
       >
         <Image
-          source={{ uri: "https://via.placeholder.com/50" }}
+          source={{ uri: profilePicture || "https://via.placeholder.com/50" }}
           style={styles.conversationImage}
         />
         <View style={styles.conversationDetails}>

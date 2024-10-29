@@ -56,10 +56,7 @@ const authSlice = createSlice({
         state.loading = false;
         if (action.payload) {
           state.isAuthenticated = true;
-          state.user = {
-            user_id: action.payload.user_id, // Store as user_id to match other parts of the app
-            // Add other user properties if available
-          };
+          state.user = action.payload;
         } else {
           state.isAuthenticated = false;
           state.user = null;

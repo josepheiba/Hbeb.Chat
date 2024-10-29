@@ -16,6 +16,7 @@ import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChangeProfileImageModal from "../../components/settings/ChangeProfileImageModal";
 
 const ios = Platform.OS === "ios";
@@ -34,11 +35,28 @@ const SettingItem = ({ icon, title, onPress, showBorder = true }) => (
 );
 
 export default function Settings() {
-  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [isModalVisible, setModalVisible] = useState(false);
+  const [email, setEmail] = useState(null);
+  const [name, setName] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userEmail = await AsyncStorage.getItem("user_email");
+      const userName = await AsyncStorage.getItem("user_name");
+      const userProfilePicture = await AsyncStorage.getItem(
+        "user_profilePicture",
+      );
+      setEmail(userEmail);
+      setName(userName);
+      setProfilePicture(userProfilePicture);
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleLogout = async () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -92,9 +110,11 @@ export default function Settings() {
               <Feather name="user" size={40} color="#666" />
             </TouchableOpacity>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>John Doe</Text>
+              <Text style={styles.profileName}>
+                {name || "Name not available"}
+              </Text>
               <Text style={styles.profileEmail}>
-                {user?.email || "Email not available"}
+                {email || "Email not available"}
               </Text>
             </View>
           </View>

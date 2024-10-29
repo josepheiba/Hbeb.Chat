@@ -23,7 +23,6 @@ export const checkAuthStatus = createAsyncThunk(
       const user_id = await AsyncStorage.getItem("user_id");
       // console.log("Token and user_id", token, user_id);
       if (token && user_id) {
-        // Validate the token with your backend
         const response = await loginApi({ token, user_id });
         return response;
       }
@@ -31,6 +30,9 @@ export const checkAuthStatus = createAsyncThunk(
     } catch (error) {
       await AsyncStorage.removeItem("authToken");
       await AsyncStorage.removeItem("user_id");
+      await AsyncStorage.removeItem("user_email");
+      await AsyncStorage.removeItem("user_name");
+      await AsyncStorage.removeItem("user_profilePicture");
       return rejectWithValue(error.message || "Authentication failed");
     }
   },
@@ -49,6 +51,9 @@ export const logout = createAsyncThunk(
       // Remove stored credentials
       await AsyncStorage.removeItem("authToken");
       await AsyncStorage.removeItem("user_id");
+      await AsyncStorage.removeItem("user_email");
+      await AsyncStorage.removeItem("user_name");
+      await AsyncStorage.removeItem("user_profilePicture");
       console.log("Credentials removed");
 
       return true;
