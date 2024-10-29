@@ -14,15 +14,15 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: "#24786D",
         tabBarStyle: {
-          height: 70,
-          borderTopWidth: 0.1,
+          // height: 70,
+          // borderTopWidth: 0.1,
           borderTopColor: "#797C7B",
           backgroundColor: "#fff",
           display: pagesToHideTabBar.includes(page) ? "none" : "flex",
         },
         tabBarLabelStyle: {
-          fontSize: 14,
-          marginBottom: 8,
+          // fontSize: 14,
+          // marginBottom: 8,
         },
       }}
     >
