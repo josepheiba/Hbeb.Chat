@@ -127,7 +127,7 @@ export default function Messages() {
             </View>
           </View>
 
-          <View style={styles.storiesSection}>
+          {/* <View style={styles.storiesSection}>
             <FlatList
               horizontal
               data={stories}
@@ -136,7 +136,7 @@ export default function Messages() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.storiesContainer}
             />
-          </View>
+          </View> */}
 
           <View style={styles.conversationsWrapper}>
             <View style={styles.conversationsHeader} />

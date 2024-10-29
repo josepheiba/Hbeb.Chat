@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   FlatList,
   Platform,
+  Image,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
@@ -37,7 +38,12 @@ export default function Contacts() {
 
   const renderContactItem = ({ item }) => (
     <View style={styles.contactItem}>
-      <View style={styles.avatar} />
+      <Image
+        style={styles.avatar}
+        source={{
+          uri: `https://api.dicebear.com/7.x/avataaars/png?seed=${item._id}`,
+        }}
+      />
       <View style={styles.contactInfo}>
         <Text style={styles.contactName}>{item.email}</Text>
         <Text style={styles.contactStatus}>{item.phone}</Text>
