@@ -105,26 +105,31 @@ export const loginApi = async ({ email, password, token, user_id }) => {
 
 export const registerApi = async (userData) => {
   try {
-    const response = await fetch(`${API_URL}/auth/signup?=`, {
+    const response = await fetch(`${API_URL}/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: userData,
+      body: JSON.stringify(userData),
     });
 
-    if (!response.ok) {
-      console.log("Registration failed with status:", response);
-      throw new Error("Registration failed");
-    }
-
     const data = await response.json();
+
+    if (!response.ok) {
+      // Handle different error response formats
+      const errorMessage =
+        data.error ||
+        data.message ||
+        data.errorMessage ||
+        "Registration failed";
+      throw new Error(errorMessage);
+    }
 
     // Store the token if it's returned upon registration
     if (data.token && data.user_id) {
       // console.log("Storing the token..." + data.token);
       await AsyncStorage.setItem("authToken", data.token);
-      await AsyncStorage.setItem("user_id", data.user_id);
+      await AsyncStorage.setItem("user_id", data.user_id.toString());
     }
 
     return data;

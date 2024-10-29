@@ -68,16 +68,9 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      // Replace this with your actual API call
       const response = await registerApi(userData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return rejectWithValue(data);
-      }
-
-      return data;
+      return response;
     } catch (error) {
       return rejectWithValue(error.message);
     }
