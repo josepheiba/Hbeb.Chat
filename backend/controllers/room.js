@@ -163,6 +163,7 @@ module.exports.fetch_room_post = async (req, res) => {
   const errors = { room_ids: "" };
   const { user_id } = res.locals;
   let rooms;
+
   try {
     if (req.body.room_ids && req.body.room_ids.length > 0) {
       const { room_ids } = req.body;
@@ -177,30 +178,36 @@ module.exports.fetch_room_post = async (req, res) => {
         _id: { $in: validRoom_ids },
         users: user_id,
       });
+
       console.log("ok");
       console.log(rooms);
-      if (rooms.length > 0) {
-        // Get last messages for each room
-        const roomsWithLastMessages = await Promise.all(
-          rooms.map(async (room) => {
-            const lastMessage = await Message.findOne({ room: room._id })
-              .sort({ timestamp: -1 })
-              .select("content sender timestamp")
-              .populate("sender", "email")
-              .lean();
 
-            const roomObject = room.toObject();
-            return {
-              ...roomObject,
-              lastMessage: lastMessage || null,
-            };
-          }),
-        );
-
-        console.log("Rooms with last messages:", roomsWithLastMessages);
-        return res.status(200).json(roomsWithLastMessages);
+      // Send empty array if no rooms found
+      if (rooms.length === 0) {
+        return res.status(200).json([]);
       }
+
+      // Get last messages for each room
+      const roomsWithLastMessages = await Promise.all(
+        rooms.map(async (room) => {
+          const lastMessage = await Message.findOne({ room: room._id })
+            .sort({ timestamp: -1 })
+            .select("content sender timestamp")
+            .populate("sender", "email")
+            .lean();
+
+          const roomObject = room.toObject();
+          return {
+            ...roomObject,
+            lastMessage: lastMessage || null,
+          };
+        }),
+      );
+
+      console.log("Rooms with last messages:", roomsWithLastMessages);
+      return res.status(200).json(roomsWithLastMessages);
     }
+
     if (req.body.users) {
       const { users } = req.body;
       await validateUsersExist(users, user_id);
@@ -210,55 +217,64 @@ module.exports.fetch_room_post = async (req, res) => {
           // $size: users.length,
         },
       });
-      if (rooms.length > 0) {
-        // Get last messages for each room
-        const roomsWithLastMessages = await Promise.all(
-          rooms.map(async (room) => {
-            const lastMessage = await Message.findOne({ room: room._id })
-              .sort({ timestamp: -1 })
-              .select("content sender timestamp")
-              .populate("sender", "email")
-              .lean();
 
-            const roomObject = room.toObject();
-            return {
-              ...roomObject,
-              lastMessage: lastMessage || null,
-            };
-          }),
-        );
-
-        console.log("Rooms with last messages:", roomsWithLastMessages);
-        return res.status(200).json(roomsWithLastMessages);
+      // Send empty array if no rooms found
+      if (rooms.length === 0) {
+        return res.status(200).json([]);
       }
+
+      // Get last messages for each room
+      const roomsWithLastMessages = await Promise.all(
+        rooms.map(async (room) => {
+          const lastMessage = await Message.findOne({ room: room._id })
+            .sort({ timestamp: -1 })
+            .select("content sender timestamp")
+            .populate("sender", "email")
+            .lean();
+
+          const roomObject = room.toObject();
+          return {
+            ...roomObject,
+            lastMessage: lastMessage || null,
+          };
+        }),
+      );
+
+      console.log("Rooms with last messages:", roomsWithLastMessages);
+      return res.status(200).json(roomsWithLastMessages);
     }
+
     if (!req.body.room_ids && !req.body.users && res.locals.user_id) {
-      const rooms = await Room.find({ users: user_id });
-      if (rooms.length > 0) {
-        // Get last messages for each room
-        const roomsWithLastMessages = await Promise.all(
-          rooms.map(async (room) => {
-            const lastMessage = await Message.findOne({ room: room._id })
-              .sort({ timestamp: -1 })
-              .select("content sender timestamp")
-              .populate("sender", "email")
-              .lean();
+      rooms = await Room.find({ users: user_id });
 
-            const roomObject = room.toObject();
-            return {
-              ...roomObject,
-              lastMessage: lastMessage || null,
-            };
-          }),
-        );
-
-        console.log("Rooms with last messages:", roomsWithLastMessages);
-        return res.status(200).json(roomsWithLastMessages);
+      // Send empty array if no rooms found
+      if (rooms.length === 0) {
+        return res.status(200).json([]);
       }
+
+      // Get last messages for each room
+      const roomsWithLastMessages = await Promise.all(
+        rooms.map(async (room) => {
+          const lastMessage = await Message.findOne({ room: room._id })
+            .sort({ timestamp: -1 })
+            .select("content sender timestamp")
+            .populate("sender", "email")
+            .lean();
+
+          const roomObject = room.toObject();
+          return {
+            ...roomObject,
+            lastMessage: lastMessage || null,
+          };
+        }),
+      );
+
+      console.log("Rooms with last messages:", roomsWithLastMessages);
+      return res.status(200).json(roomsWithLastMessages);
     }
-    if (!rooms || rooms.length == 0) {
-      throw { error: "No room found" };
-    }
+
+    // If no rooms found at this point, send empty array
+    return res.status(200).json([]);
   } catch (error) {
     console.log(error);
     res.status(400).json(error);
