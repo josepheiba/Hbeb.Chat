@@ -2,6 +2,18 @@
 
 Welcome to the Hbeb.Chat project! This repository contains the source code for a chat application built with a Node.js backend and an Expo-based React Native frontend. The application supports user authentication, real-time messaging, and friend management.
 
+## Screenshots
+
+Here are some screenshots of the application:
+
+### Home Screen
+
+![Home Screen](photos/1.png)
+
+### Chat Screen
+
+![Chat Screen](photos/2.png)
+
 ## Table of Contents
 
 1. [Project Structure](#project-structure)
