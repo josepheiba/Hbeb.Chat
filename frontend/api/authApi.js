@@ -72,7 +72,7 @@ export const loginApi = async ({ email, password, token, user_id }) => {
 
     if (isEmailPasswordLogin) {
       if (responseBody && responseBody.token) {
-        // console.log("Storing the token..." + responseBody.token);
+        console.log("Storing the token..." + responseBody.token);
         await AsyncStorage.setItem("authToken", responseBody.token);
       }
 
@@ -81,19 +81,21 @@ export const loginApi = async ({ email, password, token, user_id }) => {
         await AsyncStorage.setItem("user_id", responseBody.user_id.toString());
       }
       if (responseBody && responseBody.profilePicture) {
-        // console.log("Storing the profilePicture..." + responseBody.profilePicture);
+        console.log(
+          "Storing the profilePicture..." + responseBody.profilePicture,
+        );
         await AsyncStorage.setItem(
           "user_profilePicture",
           responseBody.profilePicture,
         );
       }
       if (responseBody && responseBody.email) {
-        // console.log("Storing the email..." + responseBody.email);
+        console.log("Storing the email..." + responseBody.email);
         await AsyncStorage.setItem("user_email", responseBody.email);
       }
-      if (responseBody && responseBody.name) {
-        // console.log("Storing the name..." + responseBody.name);
-        await AsyncStorage.setItem("user_name", responseBody.name);
+      if (responseBody && responseBody.username) {
+        console.log("Storing the name..." + responseBody.username);
+        await AsyncStorage.setItem("user_name", responseBody.username);
       }
     }
 

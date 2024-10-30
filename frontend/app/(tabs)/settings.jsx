@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Image,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons, Feather, MaterialIcons } from "@expo/vector-icons";
@@ -15,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { loginUser } from "../../redux/thunks/authThunks";
 import { logout } from "../../redux/slices/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChangeProfileImageModal from "../../components/settings/ChangeProfileImageModal";
@@ -43,6 +45,9 @@ export default function Settings() {
   const [name, setName] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
 
+  useEffect(() => {
+    dispatch(loginUser);
+  }, []);
   useEffect(() => {
     const fetchUserData = async () => {
       const userEmail = await AsyncStorage.getItem("user_email");
@@ -105,9 +110,16 @@ export default function Settings() {
           <View style={styles.profileSection}>
             <TouchableOpacity
               style={styles.profileImage}
-              onPress={handleProfileImageClick} // Handle profile image click
+              onPress={handleProfileImageClick}
             >
-              <Feather name="user" size={40} color="#666" />
+              {profilePicture ? (
+                <Image
+                  source={{ uri: profilePicture }}
+                  style={styles.profileImageStyle}
+                />
+              ) : (
+                <Feather name="user" size={40} color="#666" />
+              )}
             </TouchableOpacity>
             <View style={styles.profileInfo}>
               <Text style={styles.profileName}>
@@ -197,7 +209,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ECECEC",
   },
-  profileImage: {
+  profileImageStyle: {
     width: 80,
     height: 80,
     borderRadius: 40,
