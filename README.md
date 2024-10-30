@@ -8,11 +8,11 @@ Here are some screenshots of the application:
 
 ### Home Screen
 
-![Home Screen](photos/1.png)
+<img src="photos/1.png" alt="Home Screen" width="300"/>
 
 ### Chat Screen
 
-![Chat Screen](photos/2.png)
+<img src="photos/2.png" alt="Chat Screen" width="300"/>
 
 ## Table of Contents
 
@@ -140,15 +140,7 @@ The application uses WebSocket for real-time messaging. The WebSocket events and
 To run the backend tests, navigate to the `backend` directory and run:
 
 ```bash
-npm test
-```
-
-### Frontend
-
-To run the frontend tests, navigate to the `frontend` directory and run:
-
-```bash
-npm test
+node tests/test-socket-io.js
 ```
 
 ## Contributing
