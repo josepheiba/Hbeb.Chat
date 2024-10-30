@@ -6,13 +6,13 @@ Welcome to the Hbeb.Chat project! This repository contains the source code for a
 
 Here are some screenshots of the application:
 
-### Home Screen
+### Home Screen iOS
 
-<img src="photos/1.png" alt="Home Screen" width="300"/>
+<img src="photos/1.png" alt="Home Screen" width="500"/>
 
-### Chat Screen
+### Chat Screen Android
 
-<img src="photos/2.png" alt="Chat Screen" width="300"/>
+<img src="photos/2.png" alt="Chat Screen" width="500"/>
 
 ## Table of Contents
 
