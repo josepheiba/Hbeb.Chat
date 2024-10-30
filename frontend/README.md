@@ -1,50 +1,127 @@
-# Welcome to your Expo app 👋
+# Hbeb.Chat Frontend
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Hbeb.Chat is a modern real-time chat application built with Expo and React Native. This repository contains the frontend codebase of the application.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 🔐 Authentication (Login/Register/Logout)
+- 💬 Real-time messaging
+- 👥 Group chat functionality
+- 👤 User profiles
+- 🤝 Friend requests system
+- 📱 Cross-platform (iOS & Android)
+- 🌙 Modern UI design
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- **Framework:** [Expo](https://expo.dev/)
+- **Navigation:** [Expo Router](https://docs.expo.dev/router/introduction/)
+- **State Management:** [Redux Toolkit](https://redux-toolkit.js.org/)
+- **Real-time Communication:** [Socket.IO](https://socket.io/)
+- **Storage:** [AsyncStorage](https://react-native-async-storage.github.io/)
+- **UI Components:** React Native core components
 
-   ```bash
-    npx expo start
-   ```
+## Project Structure
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+frontend/
+├── api/                 # API integration services
+├── app/                 # App screens and navigation
+│   ├── (auth)/         # Authentication screens
+│   ├── (tabs)/         # Main tab screens
+│   └── _layout.jsx     # Root layout configuration
+├── components/         # Reusable components
+├── redux/             # Redux state management
+│   ├── selectors/     # State selectors
+│   ├── slices/        # Redux slices
+│   └── thunks/        # Async actions
+├── utils/             # Utility functions
+└── assets/           # Static assets
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### Prerequisites
 
-To learn more about developing your project with Expo, look at the following resources:
+- Node.js (v14 or later)
+- npm or yarn
+- Expo CLI
+- iOS Simulator (for iOS development)
+- Android Studio (for Android development)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Installation
 
-## Join the community
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/hbeb-chat.git
+cd hbeb-chat/frontend
+```
 
-Join our community of developers creating universal apps.
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+3. Start the development server:
+```bash
+npx expo start
+```
+
+### Running the App
+
+- Press `i` to run on iOS simulator
+- Press `a` to run on Android emulator
+- Scan QR code with Expo Go app on your phone
+
+## Development
+
+### Environment Setup
+
+Create a `.env` file in the root directory and add necessary environment variables:
+
+```env
+API_URL=your_backend_url
+```
+
+### Available Scripts
+
+- `npm start` - Start the Expo development server
+- `npm run android` - Run on Android emulator
+- `npm run ios` - Run on iOS simulator
+- `npm run web` - Run in web browser
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Best Practices
+
+- Follow the established project structure
+- Use meaningful component and variable names
+- Write comments for complex logic
+- Follow React Native performance best practices
+- Keep components small and focused
+- Use TypeScript for better type safety
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Contact
+
+Your Name - [@yourusername](https://twitter.com/yourusername)
+
+Project Link: [https://github.com/yourusername/hbeb-chat](https://github.com/yourusername/hbeb-chat)
+
+## Acknowledgments
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Documentation](https://reactnative.dev/docs/getting-started)
+- [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
+```
